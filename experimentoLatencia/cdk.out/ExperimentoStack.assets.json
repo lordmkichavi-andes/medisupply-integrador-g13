@@ -1,0 +1,51 @@
+{
+  "version": "48.0.0",
+  "files": {
+    "7fa1e366ee8a9ded01fc355f704cff92bfd179574e6f9cfee800a3541df1b200": {
+      "displayName": "ExperimentoStack/Custom::VpcRestrictDefaultSGCustomResourceProvider Code",
+      "source": {
+        "path": "asset.7fa1e366ee8a9ded01fc355f704cff92bfd179574e6f9cfee800a3541df1b200",
+        "packaging": "zip"
+      },
+      "destinations": {
+        "868422696635-us-east-1-c8586ad4": {
+          "bucketName": "cdk-exp-assets-868422696635-us-east-1",
+          "objectKey": "7fa1e366ee8a9ded01fc355f704cff92bfd179574e6f9cfee800a3541df1b200.zip",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::868422696635:role/cdk-exp-file-publishing-role-868422696635-us-east-1"
+        }
+      }
+    },
+    "1856fb3972380a44f14287c28a271d1bb639728c62b0a270ce9d7dc1a9943353": {
+      "displayName": "ExperimentoStack Template",
+      "source": {
+        "path": "ExperimentoStack.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "868422696635-us-east-1-0c3b9ffd": {
+          "bucketName": "cdk-exp-assets-868422696635-us-east-1",
+          "objectKey": "1856fb3972380a44f14287c28a271d1bb639728c62b0a270ce9d7dc1a9943353.json",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::868422696635:role/cdk-exp-file-publishing-role-868422696635-us-east-1"
+        }
+      }
+    }
+  },
+  "dockerImages": {
+    "7e3ae67caff322e3dcf93e34de16b71c6a03986b4b7fb7eb9e3ffc87bde5c7a2": {
+      "displayName": "ProductsService/ProductsServiceTaskDefinition/ProductsServiceContainer/AssetImage",
+      "source": {
+        "directory": "asset.7e3ae67caff322e3dcf93e34de16b71c6a03986b4b7fb7eb9e3ffc87bde5c7a2"
+      },
+      "destinations": {
+        "868422696635-us-east-1-95ee126a": {
+          "repositoryName": "cdk-exp-container-assets-868422696635-us-east-1",
+          "imageTag": "7e3ae67caff322e3dcf93e34de16b71c6a03986b4b7fb7eb9e3ffc87bde5c7a2",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::868422696635:role/cdk-exp-image-publishing-role-868422696635-us-east-1"
+        }
+      }
+    }
+  }
+}

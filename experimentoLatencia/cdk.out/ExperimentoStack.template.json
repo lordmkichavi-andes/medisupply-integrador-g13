@@ -1,0 +1,1332 @@
+{
+ "Resources": {
+  "ExperimentoVpc0BF8ED67": {
+   "Type": "AWS::EC2::VPC",
+   "Properties": {
+    "CidrBlock": "10.0.0.0/16",
+    "EnableDnsHostnames": true,
+    "EnableDnsSupport": true,
+    "InstanceTenancy": "default",
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "ExperimentoStack/ExperimentoVpc"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoVpc/Resource"
+   }
+  },
+  "ExperimentoVpcPublicSubnet1Subnet9A7B4C3A": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "us-east-1a",
+    "CidrBlock": "10.0.0.0/24",
+    "MapPublicIpOnLaunch": true,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Public"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Public"
+     },
+     {
+      "Key": "Name",
+      "Value": "ExperimentoStack/ExperimentoVpc/PublicSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "ExperimentoVpc0BF8ED67"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoVpc/PublicSubnet1/Subnet"
+   }
+  },
+  "ExperimentoVpcPublicSubnet1RouteTable46962067": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "ExperimentoStack/ExperimentoVpc/PublicSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "ExperimentoVpc0BF8ED67"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoVpc/PublicSubnet1/RouteTable"
+   }
+  },
+  "ExperimentoVpcPublicSubnet1RouteTableAssociationDA95DD8A": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "ExperimentoVpcPublicSubnet1RouteTable46962067"
+    },
+    "SubnetId": {
+     "Ref": "ExperimentoVpcPublicSubnet1Subnet9A7B4C3A"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoVpc/PublicSubnet1/RouteTableAssociation"
+   }
+  },
+  "ExperimentoVpcPublicSubnet1DefaultRoute649DFF5F": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "GatewayId": {
+     "Ref": "ExperimentoVpcIGWEBB48F2D"
+    },
+    "RouteTableId": {
+     "Ref": "ExperimentoVpcPublicSubnet1RouteTable46962067"
+    }
+   },
+   "DependsOn": [
+    "ExperimentoVpcVPCGW48816778"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoVpc/PublicSubnet1/DefaultRoute"
+   }
+  },
+  "ExperimentoVpcPublicSubnet1EIP4193D674": {
+   "Type": "AWS::EC2::EIP",
+   "Properties": {
+    "Domain": "vpc",
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "ExperimentoStack/ExperimentoVpc/PublicSubnet1"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoVpc/PublicSubnet1/EIP"
+   }
+  },
+  "ExperimentoVpcPublicSubnet1NATGatewayE8123CB8": {
+   "Type": "AWS::EC2::NatGateway",
+   "Properties": {
+    "AllocationId": {
+     "Fn::GetAtt": [
+      "ExperimentoVpcPublicSubnet1EIP4193D674",
+      "AllocationId"
+     ]
+    },
+    "SubnetId": {
+     "Ref": "ExperimentoVpcPublicSubnet1Subnet9A7B4C3A"
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "ExperimentoStack/ExperimentoVpc/PublicSubnet1"
+     }
+    ]
+   },
+   "DependsOn": [
+    "ExperimentoVpcPublicSubnet1DefaultRoute649DFF5F",
+    "ExperimentoVpcPublicSubnet1RouteTableAssociationDA95DD8A"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoVpc/PublicSubnet1/NATGateway"
+   }
+  },
+  "ExperimentoVpcPublicSubnet2Subnet22592CCB": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "us-east-1b",
+    "CidrBlock": "10.0.1.0/24",
+    "MapPublicIpOnLaunch": true,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Public"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Public"
+     },
+     {
+      "Key": "Name",
+      "Value": "ExperimentoStack/ExperimentoVpc/PublicSubnet2"
+     }
+    ],
+    "VpcId": {
+     "Ref": "ExperimentoVpc0BF8ED67"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoVpc/PublicSubnet2/Subnet"
+   }
+  },
+  "ExperimentoVpcPublicSubnet2RouteTable95CD081D": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "ExperimentoStack/ExperimentoVpc/PublicSubnet2"
+     }
+    ],
+    "VpcId": {
+     "Ref": "ExperimentoVpc0BF8ED67"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoVpc/PublicSubnet2/RouteTable"
+   }
+  },
+  "ExperimentoVpcPublicSubnet2RouteTableAssociation2BCED089": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "ExperimentoVpcPublicSubnet2RouteTable95CD081D"
+    },
+    "SubnetId": {
+     "Ref": "ExperimentoVpcPublicSubnet2Subnet22592CCB"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoVpc/PublicSubnet2/RouteTableAssociation"
+   }
+  },
+  "ExperimentoVpcPublicSubnet2DefaultRoute7AB6494C": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "GatewayId": {
+     "Ref": "ExperimentoVpcIGWEBB48F2D"
+    },
+    "RouteTableId": {
+     "Ref": "ExperimentoVpcPublicSubnet2RouteTable95CD081D"
+    }
+   },
+   "DependsOn": [
+    "ExperimentoVpcVPCGW48816778"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoVpc/PublicSubnet2/DefaultRoute"
+   }
+  },
+  "ExperimentoVpcPrivateSubnet1Subnet380715A8": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "us-east-1a",
+    "CidrBlock": "10.0.2.0/24",
+    "MapPublicIpOnLaunch": false,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Private"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Private"
+     },
+     {
+      "Key": "Name",
+      "Value": "ExperimentoStack/ExperimentoVpc/PrivateSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "ExperimentoVpc0BF8ED67"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoVpc/PrivateSubnet1/Subnet"
+   }
+  },
+  "ExperimentoVpcPrivateSubnet1RouteTable8398926E": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "ExperimentoStack/ExperimentoVpc/PrivateSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "ExperimentoVpc0BF8ED67"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoVpc/PrivateSubnet1/RouteTable"
+   }
+  },
+  "ExperimentoVpcPrivateSubnet1RouteTableAssociationED2879D9": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "ExperimentoVpcPrivateSubnet1RouteTable8398926E"
+    },
+    "SubnetId": {
+     "Ref": "ExperimentoVpcPrivateSubnet1Subnet380715A8"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoVpc/PrivateSubnet1/RouteTableAssociation"
+   }
+  },
+  "ExperimentoVpcPrivateSubnet1DefaultRoute37ACBB20": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "NatGatewayId": {
+     "Ref": "ExperimentoVpcPublicSubnet1NATGatewayE8123CB8"
+    },
+    "RouteTableId": {
+     "Ref": "ExperimentoVpcPrivateSubnet1RouteTable8398926E"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoVpc/PrivateSubnet1/DefaultRoute"
+   }
+  },
+  "ExperimentoVpcPrivateSubnet2Subnet940E05F8": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "us-east-1b",
+    "CidrBlock": "10.0.3.0/24",
+    "MapPublicIpOnLaunch": false,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Private"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Private"
+     },
+     {
+      "Key": "Name",
+      "Value": "ExperimentoStack/ExperimentoVpc/PrivateSubnet2"
+     }
+    ],
+    "VpcId": {
+     "Ref": "ExperimentoVpc0BF8ED67"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoVpc/PrivateSubnet2/Subnet"
+   }
+  },
+  "ExperimentoVpcPrivateSubnet2RouteTable39F64E4A": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "ExperimentoStack/ExperimentoVpc/PrivateSubnet2"
+     }
+    ],
+    "VpcId": {
+     "Ref": "ExperimentoVpc0BF8ED67"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoVpc/PrivateSubnet2/RouteTable"
+   }
+  },
+  "ExperimentoVpcPrivateSubnet2RouteTableAssociationB30918D5": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "ExperimentoVpcPrivateSubnet2RouteTable39F64E4A"
+    },
+    "SubnetId": {
+     "Ref": "ExperimentoVpcPrivateSubnet2Subnet940E05F8"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoVpc/PrivateSubnet2/RouteTableAssociation"
+   }
+  },
+  "ExperimentoVpcPrivateSubnet2DefaultRoute1877738D": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "NatGatewayId": {
+     "Ref": "ExperimentoVpcPublicSubnet1NATGatewayE8123CB8"
+    },
+    "RouteTableId": {
+     "Ref": "ExperimentoVpcPrivateSubnet2RouteTable39F64E4A"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoVpc/PrivateSubnet2/DefaultRoute"
+   }
+  },
+  "ExperimentoVpcIGWEBB48F2D": {
+   "Type": "AWS::EC2::InternetGateway",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "ExperimentoStack/ExperimentoVpc"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoVpc/IGW"
+   }
+  },
+  "ExperimentoVpcVPCGW48816778": {
+   "Type": "AWS::EC2::VPCGatewayAttachment",
+   "Properties": {
+    "InternetGatewayId": {
+     "Ref": "ExperimentoVpcIGWEBB48F2D"
+    },
+    "VpcId": {
+     "Ref": "ExperimentoVpc0BF8ED67"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoVpc/VPCGW"
+   }
+  },
+  "ExperimentoVpcRestrictDefaultSecurityGroupCustomResource5C2D7AC1": {
+   "Type": "Custom::VpcRestrictDefaultSG",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E",
+      "Arn"
+     ]
+    },
+    "DefaultSecurityGroupId": {
+     "Fn::GetAtt": [
+      "ExperimentoVpc0BF8ED67",
+      "DefaultSecurityGroup"
+     ]
+    },
+    "Account": "868422696635"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoVpc/RestrictDefaultSecurityGroupCustomResource/Default"
+   }
+  },
+  "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Version": "2012-10-17",
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ]
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+     }
+    ],
+    "Policies": [
+     {
+      "PolicyName": "Inline",
+      "PolicyDocument": {
+       "Version": "2012-10-17",
+       "Statement": [
+        {
+         "Effect": "Allow",
+         "Action": [
+          "ec2:AuthorizeSecurityGroupIngress",
+          "ec2:AuthorizeSecurityGroupEgress",
+          "ec2:RevokeSecurityGroupIngress",
+          "ec2:RevokeSecurityGroupEgress"
+         ],
+         "Resource": [
+          {
+           "Fn::Join": [
+            "",
+            [
+             "arn:aws:ec2:us-east-1:868422696635:security-group/",
+             {
+              "Fn::GetAtt": [
+               "ExperimentoVpc0BF8ED67",
+               "DefaultSecurityGroup"
+              ]
+             }
+            ]
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/Custom::VpcRestrictDefaultSGCustomResourceProvider/Role"
+   }
+  },
+  "CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-exp-assets-868422696635-us-east-1",
+     "S3Key": "7fa1e366ee8a9ded01fc355f704cff92bfd179574e6f9cfee800a3541df1b200.zip"
+    },
+    "Timeout": 900,
+    "MemorySize": 128,
+    "Handler": "__entrypoint__.handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs22.x",
+    "Description": "Lambda function for removing all inbound/outbound rules from the VPC default security group"
+   },
+   "DependsOn": [
+    "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/Custom::VpcRestrictDefaultSGCustomResourceProvider/Handler",
+    "aws:asset:path": "asset.7fa1e366ee8a9ded01fc355f704cff92bfd179574e6f9cfee800a3541df1b200",
+    "aws:asset:property": "Code"
+   }
+  },
+  "ExperimentoClusterD1BADF8A": {
+   "Type": "AWS::ECS::Cluster",
+   "Properties": {
+    "ClusterName": "experimento-cluster"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoCluster/Resource"
+   }
+  },
+  "ExperimentoALB4222696C": {
+   "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+   "Properties": {
+    "LoadBalancerAttributes": [
+     {
+      "Key": "deletion_protection.enabled",
+      "Value": "false"
+     }
+    ],
+    "Scheme": "internet-facing",
+    "SecurityGroups": [
+     {
+      "Fn::GetAtt": [
+       "ExperimentoALBSecurityGroup9F73BA63",
+       "GroupId"
+      ]
+     }
+    ],
+    "Subnets": [
+     {
+      "Ref": "ExperimentoVpcPublicSubnet1Subnet9A7B4C3A"
+     },
+     {
+      "Ref": "ExperimentoVpcPublicSubnet2Subnet22592CCB"
+     }
+    ],
+    "Type": "application"
+   },
+   "DependsOn": [
+    "ExperimentoVpcPublicSubnet1DefaultRoute649DFF5F",
+    "ExperimentoVpcPublicSubnet1RouteTableAssociationDA95DD8A",
+    "ExperimentoVpcPublicSubnet2DefaultRoute7AB6494C",
+    "ExperimentoVpcPublicSubnet2RouteTableAssociation2BCED089"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoALB/Resource"
+   }
+  },
+  "ExperimentoALBSecurityGroup9F73BA63": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "Automatically created Security Group for ELB ExperimentoStackExperimentoALBACEF74D4",
+    "SecurityGroupIngress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow from anyone on port 80",
+      "FromPort": 80,
+      "IpProtocol": "tcp",
+      "ToPort": 80
+     }
+    ],
+    "VpcId": {
+     "Ref": "ExperimentoVpc0BF8ED67"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoALB/SecurityGroup/Resource"
+   }
+  },
+  "ExperimentoALBSecurityGrouptoExperimentoStackProductsServiceSecurityGroup331EB86380801FBE9AE5": {
+   "Type": "AWS::EC2::SecurityGroupEgress",
+   "Properties": {
+    "Description": "Load balancer to target",
+    "DestinationSecurityGroupId": {
+     "Fn::GetAtt": [
+      "ProductsServiceSecurityGroupBAD7D708",
+      "GroupId"
+     ]
+    },
+    "FromPort": 8080,
+    "GroupId": {
+     "Fn::GetAtt": [
+      "ExperimentoALBSecurityGroup9F73BA63",
+      "GroupId"
+     ]
+    },
+    "IpProtocol": "tcp",
+    "ToPort": 8080
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoALB/SecurityGroup/to ExperimentoStackProductsServiceSecurityGroup331EB863:8080"
+   }
+  },
+  "ExperimentoALBExperimentoALBListener3C387EBA": {
+   "Type": "AWS::ElasticLoadBalancingV2::Listener",
+   "Properties": {
+    "DefaultActions": [
+     {
+      "FixedResponseConfig": {
+       "MessageBody": "Not Found",
+       "StatusCode": "404"
+      },
+      "Type": "fixed-response"
+     }
+    ],
+    "LoadBalancerArn": {
+     "Ref": "ExperimentoALB4222696C"
+    },
+    "Port": 80,
+    "Protocol": "HTTP"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoALB/ExperimentoALBListener/Resource"
+   }
+  },
+  "ExperimentoALBExperimentoALBListenerProductsServiceTargetGroupRuleC44337E0": {
+   "Type": "AWS::ElasticLoadBalancingV2::ListenerRule",
+   "Properties": {
+    "Actions": [
+     {
+      "TargetGroupArn": {
+       "Ref": "ProductsServiceProductsServiceTargetGroup77004340"
+      },
+      "Type": "forward"
+     }
+    ],
+    "Conditions": [
+     {
+      "Field": "path-pattern",
+      "PathPatternConfig": {
+       "Values": [
+        "/products*"
+       ]
+      }
+     }
+    ],
+    "ListenerArn": {
+     "Ref": "ExperimentoALBExperimentoALBListener3C387EBA"
+    },
+    "Priority": 200
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoALB/ExperimentoALBListener/ProductsServiceTargetGroupRule/Resource"
+   }
+  },
+  "ExperimentoDBSubnetGroupB3217544": {
+   "Type": "AWS::RDS::DBSubnetGroup",
+   "Properties": {
+    "DBSubnetGroupDescription": "Subnet group for ExperimentoDB database",
+    "SubnetIds": [
+     {
+      "Ref": "ExperimentoVpcPrivateSubnet1Subnet380715A8"
+     },
+     {
+      "Ref": "ExperimentoVpcPrivateSubnet2Subnet940E05F8"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoDB/SubnetGroup/Default"
+   }
+  },
+  "ExperimentoDBSecurityGroup12B83545": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "Security group for ExperimentoDB database",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "ExperimentoVpc0BF8ED67"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoDB/SecurityGroup/Resource"
+   }
+  },
+  "ExperimentoDBSecret230EFAC6": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "Description": {
+     "Fn::Join": [
+      "",
+      [
+       "Generated by the CDK for stack: ",
+       {
+        "Ref": "AWS::StackName"
+       }
+      ]
+     ]
+    },
+    "GenerateSecretString": {
+     "ExcludeCharacters": " %+~`#$&*()|[]{}:;<>?!'/@\"\\",
+     "GenerateStringKey": "password",
+     "PasswordLength": 30,
+     "SecretStringTemplate": "{\"username\":\"postgres\"}"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoDB/Secret/Resource"
+   }
+  },
+  "ExperimentoDBSecretAttachmentE8AEA386": {
+   "Type": "AWS::SecretsManager::SecretTargetAttachment",
+   "Properties": {
+    "SecretId": {
+     "Ref": "ExperimentoDBSecret230EFAC6"
+    },
+    "TargetId": {
+     "Ref": "ExperimentoDB51B2D812"
+    },
+    "TargetType": "AWS::RDS::DBInstance"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoDB/Secret/Attachment/Resource"
+   }
+  },
+  "ExperimentoDB51B2D812": {
+   "Type": "AWS::RDS::DBInstance",
+   "Properties": {
+    "AllocatedStorage": "20",
+    "CopyTagsToSnapshot": true,
+    "DBInstanceClass": "db.t3.micro",
+    "DBSubnetGroupName": {
+     "Ref": "ExperimentoDBSubnetGroupB3217544"
+    },
+    "DeleteAutomatedBackups": true,
+    "DeletionProtection": false,
+    "Engine": "postgres",
+    "EngineVersion": "15.7",
+    "MasterUserPassword": {
+     "Fn::Join": [
+      "",
+      [
+       "{{resolve:secretsmanager:",
+       {
+        "Ref": "ExperimentoDBSecret230EFAC6"
+       },
+       ":SecretString:password::}}"
+      ]
+     ]
+    },
+    "MasterUsername": {
+     "Fn::Join": [
+      "",
+      [
+       "{{resolve:secretsmanager:",
+       {
+        "Ref": "ExperimentoDBSecret230EFAC6"
+       },
+       ":SecretString:username::}}"
+      ]
+     ]
+    },
+    "PubliclyAccessible": false,
+    "StorageType": "gp2",
+    "VPCSecurityGroups": [
+     {
+      "Fn::GetAtt": [
+       "ExperimentoDBSecurityGroup12B83545",
+       "GroupId"
+      ]
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoDB/Resource"
+   }
+  },
+  "CacheSecurityGroupC6A3ACCF": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "Security group for Redis cache",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "ExperimentoVpc0BF8ED67"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/CacheSecurityGroup/Resource"
+   }
+  },
+  "CacheSubnetGroup": {
+   "Type": "AWS::ElastiCache::SubnetGroup",
+   "Properties": {
+    "Description": "Subnet group for Redis cache",
+    "SubnetIds": [
+     {
+      "Ref": "ExperimentoVpcPrivateSubnet1Subnet380715A8"
+     },
+     {
+      "Ref": "ExperimentoVpcPrivateSubnet2Subnet940E05F8"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/CacheSubnetGroup"
+   }
+  },
+  "ExperimentoCache": {
+   "Type": "AWS::ElastiCache::CacheCluster",
+   "Properties": {
+    "CacheNodeType": "cache.t3.micro",
+    "CacheSubnetGroupName": {
+     "Ref": "CacheSubnetGroup"
+    },
+    "Engine": "redis",
+    "NumCacheNodes": 1,
+    "VpcSecurityGroupIds": [
+     {
+      "Fn::GetAtt": [
+       "CacheSecurityGroupC6A3ACCF",
+       "GroupId"
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoCache"
+   }
+  },
+  "ExperimentoAPI6B676821": {
+   "Type": "AWS::ApiGateway::RestApi",
+   "Properties": {
+    "Description": "API para experimentos de confidencialidad y latencia",
+    "Name": "Experimento API"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoAPI/Resource"
+   }
+  },
+  "ExperimentoAPIDeploymentEC59151C4961c8a03575c00debfcc6b0f7132539": {
+   "Type": "AWS::ApiGateway::Deployment",
+   "Properties": {
+    "Description": "API para experimentos de confidencialidad y latencia",
+    "RestApiId": {
+     "Ref": "ExperimentoAPI6B676821"
+    }
+   },
+   "DependsOn": [
+    "ExperimentoAPIproductsGET64CDCE97",
+    "ExperimentoAPIproductsFB872590"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoAPI/Deployment/Resource",
+    "aws:cdk:do-not-refactor": true
+   }
+  },
+  "ExperimentoAPIDeploymentStageprod41174A54": {
+   "Type": "AWS::ApiGateway::Stage",
+   "Properties": {
+    "DeploymentId": {
+     "Ref": "ExperimentoAPIDeploymentEC59151C4961c8a03575c00debfcc6b0f7132539"
+    },
+    "RestApiId": {
+     "Ref": "ExperimentoAPI6B676821"
+    },
+    "StageName": "prod"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoAPI/DeploymentStage.prod/Resource"
+   }
+  },
+  "ExperimentoAPIproductsFB872590": {
+   "Type": "AWS::ApiGateway::Resource",
+   "Properties": {
+    "ParentId": {
+     "Fn::GetAtt": [
+      "ExperimentoAPI6B676821",
+      "RootResourceId"
+     ]
+    },
+    "PathPart": "products",
+    "RestApiId": {
+     "Ref": "ExperimentoAPI6B676821"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoAPI/Default/products/Resource"
+   }
+  },
+  "ExperimentoAPIproductsGET64CDCE97": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "NONE",
+    "HttpMethod": "GET",
+    "Integration": {
+     "IntegrationHttpMethod": "GET",
+     "Type": "HTTP_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "http://",
+        {
+         "Fn::GetAtt": [
+          "ExperimentoALB4222696C",
+          "DNSName"
+         ]
+        },
+        "/products/available"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "ExperimentoAPIproductsFB872590"
+    },
+    "RestApiId": {
+     "Ref": "ExperimentoAPI6B676821"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ExperimentoAPI/Default/products/GET/Resource"
+   }
+  },
+  "ProductsServiceProductsServiceTaskRoleF8E433B4": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ProductsService/ProductsServiceTaskRole/Resource"
+   }
+  },
+  "ProductsServiceProductsServiceLogGroup35371AE7": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": "/ecs/products-service",
+    "RetentionInDays": 7
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ProductsService/ProductsServiceLogGroup/Resource"
+   }
+  },
+  "ProductsServiceProductsServiceTaskDefinition7112097E": {
+   "Type": "AWS::ECS::TaskDefinition",
+   "Properties": {
+    "ContainerDefinitions": [
+     {
+      "Environment": [
+       {
+        "Name": "  ",
+        "Value": "products-service"
+       },
+       {
+        "Name": "LOG_LEVEL",
+        "Value": "INFO"
+       },
+       {
+        "Name": "DB_HOST",
+        "Value": {
+         "Fn::GetAtt": [
+          "ExperimentoDB51B2D812",
+          "Endpoint.Address"
+         ]
+        }
+       },
+       {
+        "Name": "DB_PORT",
+        "Value": "5432"
+       },
+       {
+        "Name": "CACHE_HOST",
+        "Value": "localhost"
+       },
+       {
+        "Name": "CACHE_PORT",
+        "Value": "6379"
+       },
+       {
+        "Name": "CACHE_DB",
+        "Value": "0"
+       }
+      ],
+      "Essential": true,
+      "Image": {
+       "Fn::Sub": "868422696635.dkr.ecr.us-east-1.${AWS::URLSuffix}/cdk-exp-container-assets-868422696635-us-east-1:7e3ae67caff322e3dcf93e34de16b71c6a03986b4b7fb7eb9e3ffc87bde5c7a2"
+      },
+      "LogConfiguration": {
+       "LogDriver": "awslogs",
+       "Options": {
+        "awslogs-group": {
+         "Ref": "ProductsServiceProductsServiceLogGroup35371AE7"
+        },
+        "awslogs-stream-prefix": "products-service",
+        "awslogs-region": "us-east-1"
+       }
+      },
+      "Name": "ProductsServiceContainer",
+      "PortMappings": [
+       {
+        "ContainerPort": 8080,
+        "Protocol": "tcp"
+       }
+      ]
+     }
+    ],
+    "Cpu": "256",
+    "ExecutionRoleArn": {
+     "Fn::GetAtt": [
+      "ProductsServiceProductsServiceTaskDefinitionExecutionRole265D6833",
+      "Arn"
+     ]
+    },
+    "Family": "ExperimentoStackProductsServiceProductsServiceTaskDefinition445000FF",
+    "Memory": "512",
+    "NetworkMode": "awsvpc",
+    "RequiresCompatibilities": [
+     "FARGATE"
+    ],
+    "TaskRoleArn": {
+     "Fn::GetAtt": [
+      "ProductsServiceProductsServiceTaskRoleF8E433B4",
+      "Arn"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ProductsService/ProductsServiceTaskDefinition/Resource"
+   }
+  },
+  "ProductsServiceProductsServiceTaskDefinitionExecutionRole265D6833": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ProductsService/ProductsServiceTaskDefinition/ExecutionRole/Resource"
+   }
+  },
+  "ProductsServiceProductsServiceTaskDefinitionExecutionRoleDefaultPolicyAFF2E775": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:BatchGetImage",
+        "ecr:GetDownloadUrlForLayer"
+       ],
+       "Effect": "Allow",
+       "Resource": "arn:aws:ecr:us-east-1:868422696635:repository/cdk-exp-container-assets-868422696635-us-east-1"
+      },
+      {
+       "Action": "ecr:GetAuthorizationToken",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "ProductsServiceProductsServiceLogGroup35371AE7",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "ProductsServiceProductsServiceTaskDefinitionExecutionRoleDefaultPolicyAFF2E775",
+    "Roles": [
+     {
+      "Ref": "ProductsServiceProductsServiceTaskDefinitionExecutionRole265D6833"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ProductsService/ProductsServiceTaskDefinition/ExecutionRole/DefaultPolicy/Resource"
+   }
+  },
+  "ProductsServiceProductsServiceTargetGroup77004340": {
+   "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+   "Properties": {
+    "HealthCheckEnabled": true,
+    "HealthCheckPath": "/products/health",
+    "HealthCheckPort": "8080",
+    "HealthCheckProtocol": "HTTP",
+    "Matcher": {
+     "HttpCode": "200"
+    },
+    "Port": 8080,
+    "Protocol": "HTTP",
+    "TargetGroupAttributes": [
+     {
+      "Key": "stickiness.enabled",
+      "Value": "false"
+     }
+    ],
+    "TargetType": "ip",
+    "VpcId": {
+     "Ref": "ExperimentoVpc0BF8ED67"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ProductsService/ProductsServiceTargetGroup/Resource"
+   }
+  },
+  "ProductsService740A68BF": {
+   "Type": "AWS::ECS::Service",
+   "Properties": {
+    "Cluster": {
+     "Ref": "ExperimentoClusterD1BADF8A"
+    },
+    "DeploymentConfiguration": {
+     "MaximumPercent": 200,
+     "MinimumHealthyPercent": 50
+    },
+    "DesiredCount": 1,
+    "EnableECSManagedTags": false,
+    "HealthCheckGracePeriodSeconds": 60,
+    "LaunchType": "FARGATE",
+    "LoadBalancers": [
+     {
+      "ContainerName": "ProductsServiceContainer",
+      "ContainerPort": 8080,
+      "TargetGroupArn": {
+       "Ref": "ProductsServiceProductsServiceTargetGroup77004340"
+      }
+     }
+    ],
+    "NetworkConfiguration": {
+     "AwsvpcConfiguration": {
+      "AssignPublicIp": "DISABLED",
+      "SecurityGroups": [
+       {
+        "Fn::GetAtt": [
+         "ProductsServiceSecurityGroupBAD7D708",
+         "GroupId"
+        ]
+       }
+      ],
+      "Subnets": [
+       {
+        "Ref": "ExperimentoVpcPrivateSubnet1Subnet380715A8"
+       },
+       {
+        "Ref": "ExperimentoVpcPrivateSubnet2Subnet940E05F8"
+       }
+      ]
+     }
+    },
+    "TaskDefinition": {
+     "Ref": "ProductsServiceProductsServiceTaskDefinition7112097E"
+    }
+   },
+   "DependsOn": [
+    "ExperimentoALBExperimentoALBListenerProductsServiceTargetGroupRuleC44337E0",
+    "ProductsServiceProductsServiceTaskRoleF8E433B4"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ProductsService/ProductsService/Service"
+   }
+  },
+  "ProductsServiceSecurityGroupBAD7D708": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "ExperimentoStack/ProductsService/ProductsService/SecurityGroup",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "ExperimentoVpc0BF8ED67"
+    }
+   },
+   "DependsOn": [
+    "ProductsServiceProductsServiceTaskRoleF8E433B4"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ProductsService/ProductsService/SecurityGroup/Resource"
+   }
+  },
+  "ProductsServiceSecurityGroupfromExperimentoStackExperimentoALBSecurityGroup09B96DDF808091752B69": {
+   "Type": "AWS::EC2::SecurityGroupIngress",
+   "Properties": {
+    "Description": "Load balancer to target",
+    "FromPort": 8080,
+    "GroupId": {
+     "Fn::GetAtt": [
+      "ProductsServiceSecurityGroupBAD7D708",
+      "GroupId"
+     ]
+    },
+    "IpProtocol": "tcp",
+    "SourceSecurityGroupId": {
+     "Fn::GetAtt": [
+      "ExperimentoALBSecurityGroup9F73BA63",
+      "GroupId"
+     ]
+    },
+    "ToPort": 8080
+   },
+   "DependsOn": [
+    "ProductsServiceProductsServiceTaskRoleF8E433B4"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ProductsService/ProductsService/SecurityGroup/from ExperimentoStackExperimentoALBSecurityGroup09B96DDF:8080"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/81XS28bNxD+LdljwGwbB00B32Q5CYQ6sSC5OVQQghF3vGJEkVtyKGez2P9e8LEPWYoRID34IIic5zfDmSH3Ir94/Sb//QU82Fe82L2SYpM3SwK+Y/BgvzTIL/Lmc8VXTcZFYbLL7GXGsj18m3y3aaOAPgDhA9QdxbqNQppqdS9KZ4CEVtnlqskU7PFI5K6uPGHuNlLwjAUXH8HuglDLntAw4gCEJyrrds2m9+rzfMqi0WXQWjUZHEBI2AgpqP5Hq87qoeKzIq29qSup+a6PsopGZtWtugGn+Da7JOOQZaI6vJ0+EgdrRalm1eHtpCgMWnurpgZT9CmeZ4EiACmKT/25ZZer7GW2fjYAnweKWEqxgPxqoR3hHWwkDvSBNrFWcxEM9MJ+8W42939Dslmq3f+9Mu9B2meQ81+D8XyQPBMYsQpnitAo7Gsozri0mxAB3+5REVsid0ZQ/cFoV60aDza5KtByI6reNMtASv0wkfLW0UY7VSSkaTrMVOkBLZzEMLs5qJmSQmGkxM7iWink3mY3+p0S/zpMCQrn6cnB8DpZfjc27LlJyJsMMqdQuzA8dwjpNICI6rH+WOtsdCMQCWls/XEyTwgxjBNystwy5DZvptJZQuPzF1efhguthxScJUn2HkwJfqbY3TXeCyV8GAHhmV/QPBZlU60IhEIzoiWjSzQHwXHVaaZ9y1CCJcGlhmIDEhQXqjxc5M2kqqTgoR5vNBRXgYdmNXY/ZrCxgrCEahAeFBLjnLA/kLFM2I/k7sCUSP2BjLYtM4XNm2sg2IDFmbLkIT3qAYmEE0d6D4TFFfCdq+xQNhK9j7nRFIu6712De30AOddS8Dq79BVGRtfxEOMgt9llc/6N0rIMVSn8AGnSKkmEZ41QpcS/LZqFphDjKNwkE5U+o7GB1mT3Tsp+mybPV23GpJZlFRjYI6EJCXoPeyHrI4tHpALvwUnySPpXVxubjPtsLUkbKDvYIuW3j6Rds5iIbvT8uIt/NmuPs961yvXVyBPrTnyJ3IT7FBU3dfD7F3bB2cAcNZ/BkOQFlv3w8qPBjaM/o3bONn7j0hU43YIBTmjsyAVwvFVzsPZBm2JqBKERMN2CKtE+gSSF2RVxyyIQuwcFJZq8iVPHYJj4Bik2wnARrJqEPTmhwB8ZP6/WTwLgW4xeRpn2U8oz0qhqGVSijFdQ3izQ0qQSZw/eRF6fxwghabBrrKSuE+oz11QlejN+sA3idjzR7/SNLgUH6e+eVdOuf0iPye2tsCVBicF1RxrnyTPZAq12huMV2DQ9O8qq8W3W6fieo+0cDB3HGUTZR6StLlaNz0egJJ0tURV5fXMRlmY8AXRFj6ojKrRMwD5vFlp6JGCt22NxVfuuqoxQXFQgJ5xr1wOMMl5hwkc3ZBZLqwjNJnxxrpojWj0xqvvGYr/mymiJQy10xzTvjHT93h9iKM/4+Oh5/ffKk8yn7f6YG89NS2SRHF8Iydmd9pwTDKfkolgSEKZSHbn9WXKAERG0TOrS5s2NLrsBK9PyaKoRqpjqP9t0O5fpekRuvoC1SDa/1nyHZraH0n+2IHlevsBKW0Ha1KHK1+1Q48Pt7Szp/Zh+XOHH/LnRB1Gg8fZYcOS7SajS69w6qhy1bF7TVqvf3uSv3+R/vPhqhXhlnCKxx3wR//8DKeAlv6MQAAA="
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "ExperimentoAPIEndpoint22E10038": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "https://",
+      {
+       "Ref": "ExperimentoAPI6B676821"
+      },
+      ".execute-api.us-east-1.",
+      {
+       "Ref": "AWS::URLSuffix"
+      },
+      "/",
+      {
+       "Ref": "ExperimentoAPIDeploymentStageprod41174A54"
+      },
+      "/"
+     ]
+    ]
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/exp/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}
