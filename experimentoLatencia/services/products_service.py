@@ -106,6 +106,14 @@ class ProductsService(Construct):
             ),
             health_check_grace_period=Duration.seconds(60)
         )
+        alb_security_group = self.alb_listener.load_balancer.connections.security_groups[0]
+        service_security_group = service.connections.security_groups[0]
+
+        service_security_group.add_ingress_rule(
+            peer=alb_security_group,
+            connection=ec2.Port.tcp(8080),
+            description="Allow inbound traffic from ALB"
+        )
 
         return service
 
