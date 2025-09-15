@@ -74,7 +74,7 @@ class ProductsService(Construct):
                 log_group=log_group
             ),
             environment={
-                "  ": "products-service",
+                "SERVICE_NAME": "products-service",
                 "LOG_LEVEL": "INFO",
                 "DB_HOST": self.database.instance_endpoint.hostname,
                 "DB_PORT": "5432",
@@ -121,7 +121,7 @@ class ProductsService(Construct):
             health_check=elbv2.HealthCheck(
                 enabled=True,
                 healthy_http_codes="200",
-                path="/products/health",
+                path="/health",
                 protocol=elbv2.Protocol.HTTP,
                 port="8080"
             )

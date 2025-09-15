@@ -983,7 +983,7 @@
      {
       "Environment": [
        {
-        "Name": "  ",
+        "Name": "SERVICE_NAME",
         "Value": "products-service"
        },
        {
@@ -1133,7 +1133,7 @@
    "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
    "Properties": {
     "HealthCheckEnabled": true,
-    "HealthCheckPath": "/products/health",
+    "HealthCheckPath": "/health",
     "HealthCheckPort": "8080",
     "HealthCheckProtocol": "HTTP",
     "Matcher": {
