@@ -59,6 +59,28 @@ def get_products():
     # Convertir la lista de objetos Product en un formato serializable (dict)
     products_list = [p.__dict__ for p in products]
     return jsonify(products_list)
+
+@app.route('/products/update/<product_id>', methods=['PUT'])
+def update_product(product_id):
+    """
+    Endpoint para actualizar un producto y forzar la invalidación de la caché.
+    """
+    data = request.get_json()
+    price = data.get('price')
+    stock = data.get('stock')
+
+    if price is None or stock is None:
+        return jsonify({"error": "Price and stock are required"}), 400
+
+    # Actualiza el producto en la base de datos
+    product_service.update_product(product_id, price=price, stock=stock)
+
+    # ⚠️ Invalida la caché del endpoint de productos disponibles
+    cache_key_to_invalidate = '/products/available'
+    cache.delete(cache_key_to_invalidate)
+
+    return jsonify({"status": "Product updated and cache invalidated"}), 200
+
 @app.route('/health', methods=['GET'])
 def health():
     return jsonify({'status': 'ok'})

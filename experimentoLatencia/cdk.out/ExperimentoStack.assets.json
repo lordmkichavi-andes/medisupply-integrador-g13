@@ -16,16 +16,16 @@
         }
       }
     },
-    "7dda50bea41817b8b4671724082493511019bb9fb29ac34960a98473e4edb9fe": {
+    "1cf17d9b5acf8e37089b7e6788cd5ef4b642b77bcbd056e9be6c9113304cbc1c": {
       "displayName": "ExperimentoStack Template",
       "source": {
         "path": "ExperimentoStack.template.json",
         "packaging": "file"
       },
       "destinations": {
-        "868422696635-us-east-1-efc528b0": {
+        "868422696635-us-east-1-f914bcf4": {
           "bucketName": "cdk-exp-assets-868422696635-us-east-1",
-          "objectKey": "7dda50bea41817b8b4671724082493511019bb9fb29ac34960a98473e4edb9fe.json",
+          "objectKey": "1cf17d9b5acf8e37089b7e6788cd5ef4b642b77bcbd056e9be6c9113304cbc1c.json",
           "region": "us-east-1",
           "assumeRoleArn": "arn:${AWS::Partition}:iam::868422696635:role/cdk-exp-file-publishing-role-868422696635-us-east-1"
         }
@@ -33,15 +33,15 @@
     }
   },
   "dockerImages": {
-    "44eb6fbab0f3c60dd39fc1cecb39796134669280067a1ef80c7fff97012eb770": {
+    "6ff53f2704c045f974fe1cd97434662338db12ccc5b90ce168170efa85e49fdd": {
       "displayName": "ProductsService/ProductsServiceTaskDefinition/ProductsServiceContainer/AssetImage",
       "source": {
-        "directory": "asset.44eb6fbab0f3c60dd39fc1cecb39796134669280067a1ef80c7fff97012eb770"
+        "directory": "asset.6ff53f2704c045f974fe1cd97434662338db12ccc5b90ce168170efa85e49fdd"
       },
       "destinations": {
-        "868422696635-us-east-1-15438fcc": {
+        "868422696635-us-east-1-7cf9d560": {
           "repositoryName": "cdk-exp-container-assets-868422696635-us-east-1",
-          "imageTag": "44eb6fbab0f3c60dd39fc1cecb39796134669280067a1ef80c7fff97012eb770",
+          "imageTag": "6ff53f2704c045f974fe1cd97434662338db12ccc5b90ce168170efa85e49fdd",
           "region": "us-east-1",
           "assumeRoleArn": "arn:${AWS::Partition}:iam::868422696635:role/cdk-exp-image-publishing-role-868422696635-us-east-1"
         }
