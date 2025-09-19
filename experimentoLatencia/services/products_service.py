@@ -16,7 +16,7 @@ class ProductsService(Construct):
 
     def __init__(self, scope: Construct, construct_id: str,
                  cluster: ecs.Cluster, vpc: ec2.Vpc,
-                 database: rds.DatabaseInstance, cache: elasticache.CfnCacheCluster,
+                 database: rds.DatabaseInstance, cache: elasticache.CfnReplicationGroup,  # ✅ Cambio aquí
                  alb_listener: elbv2.ApplicationListener, **kwargs):
         super().__init__(scope, construct_id, **kwargs)
 
@@ -35,13 +35,14 @@ class ProductsService(Construct):
         # Crear servicio
         self.service = self._create_service()
 
+        # ✅ Configurar todas las conexiones del servicio
+        self._configure_service_connections()
+
         # Configurar ALB
         self._configure_alb()
 
     def _create_task_definition(self):
         """Crear definición de tarea para Products Service"""
-
-        # IAM role para la tarea
         task_role = iam.Role(
             self, "ProductsServiceTaskRole",
             assumed_by=iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
@@ -49,26 +50,20 @@ class ProductsService(Construct):
                 iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AmazonECSTaskExecutionRolePolicy")
             ]
         )
-
-        # Log group
         log_group = logs.LogGroup(
             self, "ProductsServiceLogGroup",
             log_group_name="/ecs/products-service",
             retention=logs.RetentionDays.ONE_WEEK
         )
-
-        # Task definition
         task_definition = ecs.FargateTaskDefinition(
             self, "ProductsServiceTaskDefinition",
             cpu=256,
             memory_limit_mib=512,
             task_role=task_role
         )
-
-        # Container
         container = task_definition.add_container(
             "ProductsServiceContainer",
-            image=ecs.ContainerImage.from_asset("services/products"),  # Imagen de prueba
+            image=ecs.ContainerImage.from_asset("services/products"),
             logging=ecs.LogDrivers.aws_logs(
                 stream_prefix="products-service",
                 log_group=log_group
@@ -78,8 +73,8 @@ class ProductsService(Construct):
                 "LOG_LEVEL": "INFO",
                 "DB_HOST": self.database.instance_endpoint.hostname,
                 "DB_PORT": "5432",
-                "CACHE_HOST": "localhost",  # Placeholder - configurar después
-                "CACHE_PORT": "6379",
+                "CACHE_HOST": self.cache.attr_redis_endpoint_address,  # ✅ Cambio aquí
+                "CACHE_PORT": self.cache.attr_redis_endpoint_port,  # ✅ Cambio aquí
                 "CACHE_DB": "0"
             },
             port_mappings=[
@@ -89,12 +84,10 @@ class ProductsService(Construct):
                 )
             ]
         )
-
         return task_definition
 
     def _create_service(self):
         """Crear servicio ECS para Products Service"""
-
         service = ecs.FargateService(
             self, "ProductsService",
             cluster=self.cluster,
@@ -106,20 +99,10 @@ class ProductsService(Construct):
             ),
             health_check_grace_period=Duration.seconds(60)
         )
-        alb_security_group = self.alb_listener.load_balancer.connections.security_groups[0]
-        service_security_group = service.connections.security_groups[0]
-
-        service_security_group.add_ingress_rule(
-            peer=alb_security_group,
-            connection=ec2.Port.tcp(8080),
-            description="Allow inbound traffic from ALB"
-        )
-
         return service
 
     def _create_target_group(self):
         """Crear target group para el ALB"""
-
         target_group = elbv2.ApplicationTargetGroup(
             self, "ProductsServiceTargetGroup",
             port=8080,
@@ -134,19 +117,46 @@ class ProductsService(Construct):
                 port="8080"
             )
         )
-
         return target_group
+
+    def _configure_service_connections(self):
+        """
+        Configura las reglas de seguridad para el servicio Fargate y la conexión con Redis.
+        """
+        alb_security_group = self.alb_listener.load_balancer.connections.security_groups[0]
+        service_security_group = self.service.connections.security_groups[0]
+
+        # ✅ 1. Regla de entrada para permitir el tráfico desde el ALB
+        service_security_group.add_ingress_rule(
+            peer=alb_security_group,
+            connection=ec2.Port.tcp(8080),
+            description="Allow inbound traffic from ALB"
+        )
+
+        # ✅ 2. Crear un nuevo grupo de seguridad para la caché de Redis
+        redis_security_group = ec2.SecurityGroup(
+            self, "RedisSecurityGroup",
+            vpc=self.vpc,
+            description="Allow traffic to Redis from Fargate service",
+            allow_all_outbound=True
+        )
+
+        # ✅ 3. Regla de entrada para la caché, permitiendo el tráfico desde el servicio de Fargate
+        redis_security_group.add_ingress_rule(
+            peer=service_security_group,
+            connection=ec2.Port.tcp(6379),
+            description="Allow Fargate service to connect to Redis"
+        )
+
+        # ✅ 4. Asociar el grupo de seguridad con el clúster de Redis
+        self.cache.security_group_ids = [redis_security_group.security_group_id]
 
     def _configure_alb(self):
         """Configurar ALB para el servicio"""
-
-        # Agregar target group al listener
         self.alb_listener.add_target_groups(
             "ProductsServiceTargetGroup",
             target_groups=[self.target_group],
             conditions=[elbv2.ListenerCondition.path_patterns(["/products*"])],
             priority=200
         )
-
-        # Registrar el servicio con el target group
         self.service.attach_to_application_target_group(self.target_group)

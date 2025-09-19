@@ -5,17 +5,10 @@ from services.product_service import ProductService
 from database_setup import setup_database
 from flask_caching import Cache
 from functools import wraps
-import os
-
-REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
-REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
-REDIS_DB = os.environ.get('REDIS_DB', '0')
 
 config = {
-    "CACHE_TYPE": "RedisCache",
-    "CACHE_HOST": REDIS_HOST,
-    "CACHE_PORT": REDIS_PORT,
-    "CACHE_DB": REDIS_DB
+    "CACHE_TYPE": "SimpleCache",  # Usamos un caché en memoria
+    "CACHE_DEFAULT_TIMEOUT": 300  # 5 minutos de duración del caché
 }
 
 app = Flask(__name__)

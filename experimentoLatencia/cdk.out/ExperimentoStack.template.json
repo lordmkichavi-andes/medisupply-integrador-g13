@@ -1005,11 +1005,21 @@
        },
        {
         "Name": "CACHE_HOST",
-        "Value": "localhost"
+        "Value": {
+         "Fn::GetAtt": [
+          "ExperimentoCache",
+          "RedisEndpoint.Address"
+         ]
+        }
        },
        {
         "Name": "CACHE_PORT",
-        "Value": "6379"
+        "Value": {
+         "Fn::GetAtt": [
+          "ExperimentoCache",
+          "RedisEndpoint.Port"
+         ]
+        }
        },
        {
         "Name": "CACHE_DB",
@@ -1018,7 +1028,7 @@
       ],
       "Essential": true,
       "Image": {
-       "Fn::Sub": "868422696635.dkr.ecr.us-east-1.${AWS::URLSuffix}/cdk-exp-container-assets-868422696635-us-east-1:98514aa6ac71c20e5e7591edfc20a7979e357332b3d28013c71c46ec7d042600"
+       "Fn::Sub": "868422696635.dkr.ecr.us-east-1.${AWS::URLSuffix}/cdk-exp-container-assets-868422696635-us-east-1:44eb6fbab0f3c60dd39fc1cecb39796134669280067a1ef80c7fff97012eb770"
       },
       "LogConfiguration": {
        "LogDriver": "awslogs",
@@ -1261,10 +1271,53 @@
     "aws:cdk:path": "ExperimentoStack/ProductsService/ProductsService/SecurityGroup/from ExperimentoStackExperimentoALBSecurityGroup09B96DDF:8080"
    }
   },
+  "ProductsServiceRedisSecurityGroupC49B311C": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "Allow traffic to Redis from Fargate service",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "ExperimentoVpc0BF8ED67"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ProductsService/RedisSecurityGroup/Resource"
+   }
+  },
+  "ProductsServiceRedisSecurityGroupfromExperimentoStackProductsServiceSecurityGroup331EB8636379E8D591CF": {
+   "Type": "AWS::EC2::SecurityGroupIngress",
+   "Properties": {
+    "Description": "Allow Fargate service to connect to Redis",
+    "FromPort": 6379,
+    "GroupId": {
+     "Fn::GetAtt": [
+      "ProductsServiceRedisSecurityGroupC49B311C",
+      "GroupId"
+     ]
+    },
+    "IpProtocol": "tcp",
+    "SourceSecurityGroupId": {
+     "Fn::GetAtt": [
+      "ProductsServiceSecurityGroupBAD7D708",
+      "GroupId"
+     ]
+    },
+    "ToPort": 6379
+   },
+   "Metadata": {
+    "aws:cdk:path": "ExperimentoStack/ProductsService/RedisSecurityGroup/from ExperimentoStackProductsServiceSecurityGroup331EB863:6379"
+   }
+  },
   "CDKMetadata": {
    "Type": "AWS::CDK::Metadata",
    "Properties": {
-    "Analytics": "v2:deflate64:H4sIAAAAAAAA/81XS2/bOBD+LdWxYLXbFNsFcnOctjA2bQw728MaRjGmJjJritSSQ6eqoP++4EOyHLtBge4hhyDkPL8ZzkO+yC9ev8l/fwEP9hUvdq+k2OTtkoDvGDzYLy3yi7z9XPNVm3FRmOwye5mxrIJvk+82XRTQByB8gKanWLdRSFOt7kXpDJDQKrtctZmCCo9E7praE+ZuIwXPWHDxEewuCHXsCQ0j9kB4orLu1mx6rz7PpywaXQatVZvBHoSEjZCCmn+06q3uaz4r0tmbupKa74Yo62hkVt+qG3CKb7NLMg5ZJur92+kjcbBWlGpW799OisKgtbdqajBFn+J5FigCkKL4NLxbdrnKXmbrZwPweaCIpRQLyJ8W2hHewUbigX6gTazVXAQDg7A/vJvN/b9Dslmq3f+9Mu9B2meQ81+D8XyQPBMYsQpnitAoHGoozrh0mxAB31aoiC2ROyOo+WC0q1etB5tcFWi5EfVgmmUgpX6YSHnraKOdKhLSNB1mqvSAFk5imN0c1ExJoTBSYmdxrRRyb7Mf/U6Jfx2mBIX39ORgeJ0svxsb9twk5E0GmVOofRieewjpNICI6rH+WOtsdCMQwxx8QiZFE8fDOOEnhBjqCTlZ7hhym7dT6Syh8TmOp0+HpTfADs6SJHsPpgQ/d+zuGu+FEj7UVYL/+C9oHouyqVYEQqEZ0ZLRJZq94LjqNdO9YyjBkuBSQ7EBCYoLVe4v8nZS11LwULM3GoqrwEOzGrsfM9hYQVhCdRA+KCTGOWH/IGOZcB/J3YEpkYYHGV07Zgqbt9dAsAGLM2XJQ3rUJxIJJ450BYTFFfCdq+2htCR6H3OjKRb+0N8GK70HOddS8Ca79FVIRjfxEeOwt9lle/47pmMZqlL4IdOmU5IInz5ClRL/tmgWmkKMo3CTTFT6jMYGWpvdOymHa5pOX7UZkzqW1WCgQkITEvQeKiGbI4tHpALvwUnySIYvsy42IvfZWpI2UPawRcrvEEm3ZjER/Xj6caf/bNYeZ71vleurkSfWv/gSuQk7FxU3TfD7F/bB2cAcNZ/BkOQFlsOA86PBjaM/o3bONn7j0hU43YIBTmjsyAVwvFVzsPZBm2JqBKERMN2CKtE+gSSF2RdxxyIQW4GCEk3exqljMGwFgxQb4bAsVm3CnpxQ4I+Mn1cbJgHwLUYvo0z7KeUZaVR1DGpRxjWVtwu0NKnF2Yc3kTfkMUJIGuwaa6mbhPrMKqvFYMYPtoO4HU/9O32jS8FB+v20arv1D+kxuYMVtiQoMbjuSeM8eSZboNXOcLwCm6ZnT1m1vs16Hd9ztJ2DoeM4gyj7iLTVxar1+QiUpLMlqiNvaC7C0owngK7pUXVEhY4JqPJ2oaVHAta6CourxndVbYTiogY54Vy7AWCU8QoTPtqiWSytIjSb8MW5ao9ozcSo/ncY+zVXRks81EL/TPPeSN/vwyOG8owfKANv2OVPMp+2+2NufDctkUVy/EJIzu6055xgOCUXxZKAMJXqyO3PkgOMiKBjUpc2b2902Q9YmY5HU41QxVT/2aXtXKb1iNx8AWuRbH6t+Q7NrILS/7RB8rx8gbW2grRpQpWvu0ONH7a3s6SrMf24wo/5c6P3okDj7bHgyHeTUKXXuXVUO+rYvKGtVr+9yV+/yf948dUK8co4RaLCfBH//wdLEVvhxxAAAA=="
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/81XS28bNxD+Ld1jwGwbB00B32Q5CYQ6sSC5OXQhBCPueMWIIrfkUI662P9e8LEPWYobND34YHg5z2+G86Au8otXr/NffoIH+5KX25dSrPNmScC3DB7s5wb5Rd58qnnRZFyUJrvMXmQs28HXyd82HRTQeyB8gENHsW6tkKZa3YvKGSChVXZZNJmCHR6J3B1qT5i7tRQ8Y8HFB7DbINSyJzSM2APhicqqXbHpvfo0n7JodBm0iiaDPQgJayEFHf7UqrO6r/msTN/e1JXUfNtHWUcjs/pW3YBTfJNdknHIMlHv30wfiYO1olKzev9mUpYGrb1VU4Mp+hTPs0ARgJTlx/7esssie5Gtng3A54EillIsIP+10I7wDtYSB/pAm1iruQgGemH/8XY29/+GZLNUu/97Zd6DtM8g5z8G4/kgeSYwYhXOFKFR2NdQnHHpNCECvtmhIrZE7oygw3ujXV00HmxyVaLlRtS9aZaBlPphIuWto7V2qkxI03SYqcoDWjiJYXZzUDMlhcJIiZ3FtVLIvc1u9Dsl/nKYEhTu05OD4VWy/HZs2HOTkDcZZE6hdmF47hDSaQAR1WP9sdbZ6EYg+jn4hMwQzX/D8q/+4+AZX+UJISbxhJzstgy5zZupdJbQ+NuLXx+HddonJDhLkuwdmAr8RLPba7wXSnjgRQL2+C9oHouyqVYEQqEZ0ZLRJZq94Fh0muncMpRgSXCpoVyDBMWFqvYXeTOpayl46IYbDeVV4KEpxu7HDDZWEJZQDcKDQmKcE/bXMZYJ55HcHZgKqb+Q0bFlprR5cw0Ea7A4U5Y8pEcdKJFw4kjvgLC8Ar51tR0KRaL3MTeaYkv1k8PgTu9BzrUU/JBd+poiow/xEuMasdllc/6F1LIMVSX8+GrSV5IIjyqhKol/WDQLTSHGUbhJJip9QmMDrcnunZT9Mc29L9qMSS3LajCwQ0ITEvQOdkIejiwekUq8ByfJI+nffG1sK+6ztSRtoOpgi5TfPpJ2xWIiusH37RnyvVl7nPWuVa6vRp5Yd+NL5CZsc1TcHILf37ELzgbmqPkMhiQvsOpHpx8Mbhz9GbVztvErl67E6QYMcEJjRy6A462ag7UP2pRTIwiNgOkGVIX2CSQpzK6IWxaB2B0oqNDkTZw6BsO+MUixEYY1VDQJe3JCgT8yfl6tnwTANxi9jDLtp5RnpFHVMqhFFRdg3izQ0qQWZy/eRF6fxwghabBrrKU+JNRnlmQtejN+sA3idjzP7/SNrgQH6Tdf0bSrb9JjcnsrbElQYXDdkcZ58ky2QKud4XgFNk3PjlI0vs06Hd9ztJmDoeM4gyj7gLTRZdH4fARK0tkQ1ZHXNxdhZcYTQNf0qDqiQssE7PJmoaVHAta6HZZXB99VtRGKixrkhHPteoBRxitM+GgnZrG0ytBswhdn0RzRDhOjul947MdcGS1xqIXumuadka7f+0sM5RmfPj2vfyU8yXza7re58d60RBbJ8X2QnN1pzznBcEouyyUBYSrVkdvvJQcYEUHLpK5s3tzoqhuwMn0eTTVCFVP9W5u2c5XWI3LzGaxFsvm15ls0sx1U/kcTkuflC6y1FaTNIVT5qh1qfNjezpLejenHFX7Mnxu9FyUab48FR76bhKq8zq2j2lHL5gfaaPXz6/zV6/zXn75YIV4ap0jsMF/E//8ActK1KyERAAA="
    },
    "Metadata": {
     "aws:cdk:path": "ExperimentoStack/CDKMetadata/Default"

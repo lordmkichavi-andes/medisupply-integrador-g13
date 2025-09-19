@@ -18,7 +18,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::868422696635:role/cdk-exp-deploy-role-868422696635-us-east-1",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::868422696635:role/cdk-exp-cfn-exec-role-868422696635-us-east-1",
-        "stackTemplateAssetObjectUrl": "s3://cdk-exp-assets-868422696635-us-east-1/5534d57b2abf6bd162ae1b24c6640149e7aaa6fc78818dfcd9a1a25ae4bb71b8.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-exp-assets-868422696635-us-east-1/7dda50bea41817b8b4671724082493511019bb9fb29ac34960a98473e4edb9fe.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/exp/version",
         "additionalDependencies": [
@@ -881,16 +881,16 @@
             "type": "aws:cdk:warning",
             "data": "minHealthyPercent has not been configured so the default value of 50% is used. The number of running tasks will decrease below the desired count during deployments etc. See https://github.com/aws/aws-cdk/issues/31705 [ack: @aws-cdk/aws-ecs:minHealthyPercent]",
             "trace": [
-              "Annotations.addMessage (C:\\Users\\anfer\\AppData\\Local\\Temp\\jsii-kernel-7qj8ey\\node_modules\\aws-cdk-lib\\core\\lib\\annotations.js:1:1978)",
-              "Annotations.addWarningV2 (C:\\Users\\anfer\\AppData\\Local\\Temp\\jsii-kernel-7qj8ey\\node_modules\\aws-cdk-lib\\core\\lib\\annotations.js:1:896)",
-              "new BaseService (C:\\Users\\anfer\\AppData\\Local\\Temp\\jsii-kernel-7qj8ey\\node_modules\\aws-cdk-lib\\aws-ecs\\lib\\base\\base-service.js:1:8444)",
-              "new FargateService2 (C:\\Users\\anfer\\AppData\\Local\\Temp\\jsii-kernel-7qj8ey\\node_modules\\aws-cdk-lib\\aws-ecs\\lib\\fargate\\fargate-service.js:1:3888)",
-              "new FargateService2 (C:\\Users\\anfer\\AppData\\Local\\Temp\\jsii-kernel-7qj8ey\\node_modules\\aws-cdk-lib\\core\\lib\\prop-injectable.js:1:488)",
-              "Kernel._Kernel_create (C:\\Users\\anfer\\AppData\\Local\\Temp\\tmp5xyj8wyt\\lib\\program.js:548:25)",
-              "Kernel.create (C:\\Users\\anfer\\AppData\\Local\\Temp\\tmp5xyj8wyt\\lib\\program.js:218:93)",
-              "KernelHost.processRequest (C:\\Users\\anfer\\AppData\\Local\\Temp\\tmp5xyj8wyt\\lib\\program.js:15479:36)",
-              "KernelHost.run (C:\\Users\\anfer\\AppData\\Local\\Temp\\tmp5xyj8wyt\\lib\\program.js:15439:22)",
-              "Immediate._onImmediate (C:\\Users\\anfer\\AppData\\Local\\Temp\\tmp5xyj8wyt\\lib\\program.js:15440:45)",
+              "Annotations.addMessage (C:\\Users\\anfer\\AppData\\Local\\Temp\\jsii-kernel-MhF3SX\\node_modules\\aws-cdk-lib\\core\\lib\\annotations.js:1:1978)",
+              "Annotations.addWarningV2 (C:\\Users\\anfer\\AppData\\Local\\Temp\\jsii-kernel-MhF3SX\\node_modules\\aws-cdk-lib\\core\\lib\\annotations.js:1:896)",
+              "new BaseService (C:\\Users\\anfer\\AppData\\Local\\Temp\\jsii-kernel-MhF3SX\\node_modules\\aws-cdk-lib\\aws-ecs\\lib\\base\\base-service.js:1:8444)",
+              "new FargateService2 (C:\\Users\\anfer\\AppData\\Local\\Temp\\jsii-kernel-MhF3SX\\node_modules\\aws-cdk-lib\\aws-ecs\\lib\\fargate\\fargate-service.js:1:3888)",
+              "new FargateService2 (C:\\Users\\anfer\\AppData\\Local\\Temp\\jsii-kernel-MhF3SX\\node_modules\\aws-cdk-lib\\core\\lib\\prop-injectable.js:1:488)",
+              "Kernel._Kernel_create (C:\\Users\\anfer\\AppData\\Local\\Temp\\tmpj_trcou3\\lib\\program.js:548:25)",
+              "Kernel.create (C:\\Users\\anfer\\AppData\\Local\\Temp\\tmpj_trcou3\\lib\\program.js:218:93)",
+              "KernelHost.processRequest (C:\\Users\\anfer\\AppData\\Local\\Temp\\tmpj_trcou3\\lib\\program.js:15479:36)",
+              "KernelHost.run (C:\\Users\\anfer\\AppData\\Local\\Temp\\tmpj_trcou3\\lib\\program.js:15439:22)",
+              "Immediate._onImmediate (C:\\Users\\anfer\\AppData\\Local\\Temp\\tmpj_trcou3\\lib\\program.js:15440:45)",
               "process.processImmediate (node:internal/timers:505:21)"
             ]
           },
@@ -945,6 +945,39 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "ProductsServiceSecurityGroupfromExperimentoStackExperimentoALBSecurityGroup09B96DDF808091752B69"
+          }
+        ],
+        "/ExperimentoStack/ProductsService/RedisSecurityGroup": [
+          {
+            "type": "aws:cdk:analytics:construct",
+            "data": {
+              "vpc": "*",
+              "allowAllOutbound": true,
+              "description": "*"
+            }
+          },
+          {
+            "type": "aws:cdk:analytics:method",
+            "data": {
+              "addIngressRule": [
+                "*",
+                {},
+                "*",
+                "*"
+              ]
+            }
+          }
+        ],
+        "/ExperimentoStack/ProductsService/RedisSecurityGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ProductsServiceRedisSecurityGroupC49B311C"
+          }
+        ],
+        "/ExperimentoStack/ProductsService/RedisSecurityGroup/from ExperimentoStackProductsServiceSecurityGroup331EB863:6379": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ProductsServiceRedisSecurityGroupfromExperimentoStackProductsServiceSecurityGroup331EB8636379E8D591CF"
           }
         ],
         "/ExperimentoStack/CDKMetadata/Default": [
