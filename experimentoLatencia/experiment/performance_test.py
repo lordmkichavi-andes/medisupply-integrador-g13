@@ -10,6 +10,8 @@ BASE_URL = os.environ.get("BASE_URL", "https://localhost:8080")
 global PRODCUCT_STOCK
 global start_time_to_miss
 global end_time_to_miss
+global start_propagation
+global end_propagation
 
 class ProductsServiceUser(HttpUser):
     """
@@ -22,7 +24,7 @@ class ProductsServiceUser(HttpUser):
     host = BASE_URL
 
     # Un diccionario para llevar el conteo de los 'cache hits' y 'cache misses'.
-    cache_metrics = {"hit": 0, "miss": 0, "time":0, "ttl":[]}
+    cache_metrics = {"hit": 0, "miss": 0, "time":0, "ttl":[], "propagation":[], "consistency":0}
 
     # Lista para almacenar los resultados de latencia de propagación
     propagation_latencies = []
@@ -37,7 +39,9 @@ class ProductsServiceUser(HttpUser):
         self.cache_metrics["hit"] = 0
         self.cache_metrics["miss"] = 0
         global start_time_to_miss
+        global start_propagation
         start_time_to_miss = time.time()
+        start_propagation = time.time()
 
     @task(10)
     def get_products_load_test(self):
@@ -51,6 +55,9 @@ class ProductsServiceUser(HttpUser):
         with self.client.get("/products/available", catch_response=True) as response:
             global start_time_to_miss
             global end_time_to_miss
+            global start_propagation
+            global end_propagation
+
             end_time = time.time()
             # Verifica el encabezado X-Cache para saber si la respuesta vino de Redis.
             x_cache_header = response.headers.get('X-Cache', 'UNKNOWN')
@@ -58,6 +65,9 @@ class ProductsServiceUser(HttpUser):
             self.cache_metrics["time"] += total_time
             # Registra la métrica para el análisis posterior.
             if x_cache_header == 'HIT':
+                end_propagation = time.time()
+                self.cache_metrics["propagation"].append(end_propagation - start_propagation)
+                start_propagation = end_propagation
                 self.cache_metrics["hit"] += 1
             elif x_cache_header == 'MISS':
                 end_time_to_miss = time.time()
@@ -77,9 +87,12 @@ class ProductsServiceUser(HttpUser):
         # Suponiendo que el producto con ID 1 existe y se puede actualizar.
 
         global PRODCUCT_STOCK
+        global start_propagation
+
         try:
             PRODCUCT_STOCK -= 1
         except (NameError, TypeError):
+            self.cache_metrics["consistency"] += 1
             PRODCUCT_STOCK = 999  # Se inicializa el stock
 
         product_id_to_update = "prod_006"
@@ -92,8 +105,10 @@ class ProductsServiceUser(HttpUser):
         with self.client.put(update_url, json=update_payload, catch_response=True) as response:
             if response.status_code != 200:
                 response.failure(f"La actualización falló con código {response.status_code}")
+                start_propagation =  time.time()
             else:
                 response.success()
+
 
 
     @events.test_stop.add_listener
@@ -103,11 +118,11 @@ class ProductsServiceUser(HttpUser):
         un resumen de las métricas y guardarlas en un archivo de texto.
         """
         output_file = "performance_summary.txt"
-
+        stats = environment.runner.stats.total
         with open(output_file, "w") as f:
             # --------------------------------------------------------------------------------------
             # Escenario 1: Tasa de Aciertos de Caché
-            f.write("--- Resultados de la Tasa de Aciertos de Caché (Escenario 2: Consulta y modificación productos) ---\n")
+            f.write("--- Resultados de la Tasa de Aciertos de Caché (Escenario 1: Consulta) ---\n")
             total_cache_requests = ProductsServiceUser.cache_metrics["hit"] + ProductsServiceUser.cache_metrics["miss"]
             if total_cache_requests > 0:
                 cache_hit_rate = (ProductsServiceUser.cache_metrics["hit"] / total_cache_requests) * 100
@@ -116,6 +131,9 @@ class ProductsServiceUser(HttpUser):
                 f.write(f"Tasa de Aciertos de Caché (Cache Hit Rate): {cache_hit_rate:.2f}%\n")
                 f.write(f"Tiempo de respuesta promedio: {ProductsServiceUser.cache_metrics['time']/total_cache_requests:.2f}ms\n")
                 f.write(f"TTL real: {statistics.mean(ProductsServiceUser.cache_metrics['ttl'][0:]):.2f}s\n")
+                f.write(f"Latencia propagación: {statistics.mean(ProductsServiceUser.cache_metrics['propagation'][0:]):.2f}s\n")
+                f.write(f"Latencia P95: {stats.get_response_time_percentile(0.95):.2f}s\n")
+                f.write(f"Consistencua BD: {100 - ((ProductsServiceUser.cache_metrics['consistency']-1)/total_cache_requests):.2f}%\n")
             else:
                 f.write(
                     "No se realizaron solicitudes de caché. La prueba podría haber fallado antes de la ejecución.\n")
