@@ -1,0 +1,16 @@
+--- Resultados de la Tasa de Aciertos de Caché (Escenario 1: Solo consulta de productos) ---
+N�mero de Cache HITs: 108178
+N�mero de Cache MISSs: 3
+Tasa de Aciertos de Cach� (Cache Hit Rate): 100.00%
+Tiempo de respuesta promedio: 127.44ms
+TTL real: 130.40s
+------------------------------------------------------------------------
+
+--- Resultados de la Tasa de Aciertos de Caché (Escenario 2: Consulta y modificación productos) ---
+N�mero de Cache HITs: 88040
+N�mero de Cache MISSs: 8813
+Tasa de Aciertos de Cach� (Cache Hit Rate): 90.90%
+Tiempo de respuesta promedio: 163.26ms
+TTL real: 0.07s
+------------------------------------------------------------------------
+

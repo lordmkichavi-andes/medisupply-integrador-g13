@@ -7,7 +7,9 @@ import statistics
 # Lee la URL base del servicio desde una variable de entorno.
 # Se ha corregido para incluir el esquema https:// por defecto
 BASE_URL = os.environ.get("BASE_URL", "https://localhost:8080")
-
+global PRODCUCT_STOCK
+global start_time_to_miss
+global end_time_to_miss
 
 class ProductsServiceUser(HttpUser):
     """
@@ -27,7 +29,6 @@ class ProductsServiceUser(HttpUser):
 
     # Lista para almacenar los resultados del test de TTL y consistencia
     ttl_results = []
-    start_time_to_miss = 0
 
     def on_start(self):
         """
@@ -35,7 +36,8 @@ class ProductsServiceUser(HttpUser):
         """
         self.cache_metrics["hit"] = 0
         self.cache_metrics["miss"] = 0
-        self.start_time_to_miss = time.time()
+        global start_time_to_miss
+        start_time_to_miss = time.time()
 
     @task(10)
     def get_products_load_test(self):
@@ -47,6 +49,8 @@ class ProductsServiceUser(HttpUser):
         start_time = time.time()
 
         with self.client.get("/products/available", catch_response=True) as response:
+            global start_time_to_miss
+            global end_time_to_miss
             end_time = time.time()
             # Verifica el encabezado X-Cache para saber si la respuesta vino de Redis.
             x_cache_header = response.headers.get('X-Cache', 'UNKNOWN')
@@ -57,8 +61,8 @@ class ProductsServiceUser(HttpUser):
                 self.cache_metrics["hit"] += 1
             elif x_cache_header == 'MISS':
                 end_time_to_miss = time.time()
-                self.cache_metrics["ttl"].append(end_time_to_miss-self.start_time_to_miss)
-                self.start_time_to_miss = end_time_to_miss
+                self.cache_metrics["ttl"].append(end_time_to_miss-start_time_to_miss)
+                start_time_to_miss = end_time_to_miss
                 self.cache_metrics["miss"] += 1
 
             # Si la respuesta es exitosa (código 200), se marca como éxito.
@@ -71,6 +75,7 @@ class ProductsServiceUser(HttpUser):
         Escenario 2: Simula una actualización en tiempo real del catálogo.
         """
         # Suponiendo que el producto con ID 1 existe y se puede actualizar.
+
         global PRODCUCT_STOCK
         try:
             PRODCUCT_STOCK -= 1
@@ -91,7 +96,6 @@ class ProductsServiceUser(HttpUser):
                 response.success()
 
 
-
     @events.test_stop.add_listener
     def on_test_stop(environment, **kwargs):
         """
@@ -103,7 +107,7 @@ class ProductsServiceUser(HttpUser):
         with open(output_file, "w") as f:
             # --------------------------------------------------------------------------------------
             # Escenario 1: Tasa de Aciertos de Caché
-            f.write("--- Resultados de la Tasa de Aciertos de Caché (Escenario 1) ---\n")
+            f.write("--- Resultados de la Tasa de Aciertos de Caché (Escenario 2: Consulta y modificación productos) ---\n")
             total_cache_requests = ProductsServiceUser.cache_metrics["hit"] + ProductsServiceUser.cache_metrics["miss"]
             if total_cache_requests > 0:
                 cache_hit_rate = (ProductsServiceUser.cache_metrics["hit"] / total_cache_requests) * 100
@@ -111,7 +115,7 @@ class ProductsServiceUser(HttpUser):
                 f.write(f"Número de Cache MISSs: {ProductsServiceUser.cache_metrics['miss']}\n")
                 f.write(f"Tasa de Aciertos de Caché (Cache Hit Rate): {cache_hit_rate:.2f}%\n")
                 f.write(f"Tiempo de respuesta promedio: {ProductsServiceUser.cache_metrics['time']/total_cache_requests:.2f}ms\n")
-                f.write(f"TTL real: {statistics.mean(ProductsServiceUser.cache_metrics['ttl']):.2f}s\n")
+                f.write(f"TTL real: {statistics.mean(ProductsServiceUser.cache_metrics['ttl'][0:]):.2f}s\n")
             else:
                 f.write(
                     "No se realizaron solicitudes de caché. La prueba podría haber fallado antes de la ejecución.\n")

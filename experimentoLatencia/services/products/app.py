@@ -58,7 +58,7 @@ setup_database()
 
 
 @app.route('/products/available', methods=['GET'])
-@cache_control_header(timeout=60, key="products")
+@cache_control_header(timeout=180, key="products")
 def get_products():
     """Endpoint para listar productos disponibles."""
     products = product_service.list_available_products()
@@ -94,7 +94,7 @@ def update_product(product_id):
 
 
 @app.route('/products/<product_id>', methods=['GET'])
-@cache_control_header(timeout=60)
+@cache_control_header(timeout=180)
 def get_product_by_id(product_id):
     """
     Endpoint para obtener un producto por su ID.
