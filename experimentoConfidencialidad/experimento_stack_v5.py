@@ -65,27 +65,10 @@ class ExperimentoStackV5(Stack):
             credentials=rds.Credentials.from_generated_secret("postgres")
         )
         
-        # Cognito User Pool con atributos personalizados para MeddySupply
-        self.user_pool = cognito.UserPool(
+        # Usar User Pool existente de Cognito (el más reciente)
+        self.user_pool = cognito.UserPool.from_user_pool_id(
             self, "ExperimentoUserPool",
-            user_pool_name="experimento-user-pool-v5",
-            self_sign_up_enabled=True,
-            sign_in_aliases=cognito.SignInAliases(email=True),
-            # Atributos personalizados para MeddySupply
-            custom_attributes={
-                'region': cognito.StringAttribute(min_len=1, max_len=20, mutable=True),
-                'country_code': cognito.StringAttribute(min_len=2, max_len=3, mutable=True),
-                'timezone': cognito.StringAttribute(min_len=1, max_len=50, mutable=True),
-                'role': cognito.StringAttribute(min_len=1, max_len=30, mutable=True),
-                'department': cognito.StringAttribute(min_len=1, max_len=50, mutable=True),
-                'employee_id': cognito.StringAttribute(min_len=1, max_len=20, mutable=True),
-                'location_code': cognito.StringAttribute(min_len=1, max_len=10, mutable=True),
-                'business_start': cognito.StringAttribute(min_len=1, max_len=10, mutable=True),
-                'business_end': cognito.StringAttribute(min_len=1, max_len=10, mutable=True),
-                'authorized_countries': cognito.StringAttribute(min_len=1, max_len=100, mutable=True),
-                'risk_tolerance': cognito.StringAttribute(min_len=1, max_len=20, mutable=True)
-            },
-            removal_policy=RemovalPolicy.DESTROY
+            user_pool_id="us-east-1_3Y9Uqgqfc"
         )
         
         # Cognito User Pool Client
@@ -134,11 +117,14 @@ class ExperimentoStackV5(Stack):
             description="API completa para experimentos - Lambda + Fargate + RDS + Cognito"
         )
         
-        # Lambda Autorizador para API Gateway
-        self.api_authorizer = apigateway.TokenAuthorizer(
-            self, "ExperimentoAPIAuthorizer",
+        # Lambda Autorizador para API Gateway (RequestAuthorizer para headers)
+        self.api_authorizer = apigateway.RequestAuthorizer(
+            self, "ExperimentoAPIAuthorizerV2",  # Nuevo ID para forzar recreación
             handler=self.authorizer_lambda,
-            identity_source=apigateway.IdentitySource.header("Authorization")
+            identity_sources=[
+                apigateway.IdentitySource.header("Authorization"),
+                apigateway.IdentitySource.header("X-Forwarded-For")
+            ]
         )
         
         # Lambda mejorado para endpoints de MeddySupply Demo
@@ -279,6 +265,9 @@ def lambda_handler(event, context):
         
         # Crear servicios Fargate
         self._create_fargate_services()
+
+        # Servicio de reportes (Fargate) y ruta API Gateway
+        self._create_reports_service_and_api()
         
         # Outputs importantes
         from aws_cdk import CfnOutput
@@ -356,6 +345,221 @@ def lambda_handler(event, context):
         
         # Auth Service  
         self._create_auth_service(ecs_security_group)
+
+    def _create_reports_service_and_api(self):
+        """Servicio Fargate mínimo que consulta RDS y endpoint /reports/query"""
+        # Security Group reutilizable para ECS (ya creado en _create_fargate_services)
+        ecs_sg = ec2.SecurityGroup.from_security_group_id(
+            self, "ImportedECSSGForReports", security_group_id=self.node.try_get_context("ECSSecurityGroupId") or ""
+        ) if False else None
+
+        # Si no podemos importar por id, creamos uno nuevo básico
+        if ecs_sg is None:
+            ecs_sg = ec2.SecurityGroup(
+                self, "ReportsECSSecurityGroup",
+                vpc=self.default_vpc,
+                description="SG for reports service",
+                allow_all_outbound=False
+            )
+            ecs_sg.add_ingress_rule(
+                peer=ec2.Peer.any_ipv4(),
+                connection=ec2.Port.tcp(8080),
+                description="HTTP from internet"
+            )
+            ecs_sg.add_egress_rule(peer=ec2.Peer.any_ipv4(), connection=ec2.Port.tcp(5432), description="PostgreSQL to RDS")
+            ecs_sg.add_egress_rule(peer=ec2.Peer.any_ipv4(), connection=ec2.Port.tcp(443), description="HTTPS to internet")
+            ecs_sg.add_egress_rule(peer=ec2.Peer.any_ipv4(), connection=ec2.Port.tcp(80), description="HTTP to internet")
+
+        # Task Definition
+        reports_task_def = ecs.FargateTaskDefinition(
+            self, "ReportsServiceTaskDefinition",
+            cpu=256,
+            memory_limit_mib=512
+        )
+
+        # Logs
+        reports_log_group = logs.LogGroup(
+            self, "ReportsServiceLogGroupV5",
+            log_group_name="/ecs/reports-service-v5",
+            retention=logs.RetentionDays.ONE_WEEK
+        )
+
+        # Container con imagen pública y servidor inline con conexión a RDS
+        reports_container = reports_task_def.add_container(
+            "ReportsServiceContainer",
+            image=ecs.ContainerImage.from_registry("python:3.9-slim"),
+            command=["python", "-c", """
+import http.server, socketserver, json, os, time, base64
+import threading
+
+def ensure_pg8000():
+    try:
+        import pg8000  # noqa
+        return
+    except Exception:
+        import subprocess, sys
+        subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--no-cache-dir', 'pg8000'])
+
+def ensure_boto3():
+    try:
+        import boto3  # noqa
+        return
+    except Exception:
+        import subprocess, sys
+        subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--no-cache-dir', 'boto3'])
+
+ensure_pg8000()
+ensure_boto3()
+import pg8000
+from decimal import Decimal
+from datetime import datetime, date
+try:
+    import boto3
+except Exception:
+    boto3 = None
+
+DB_HOST = os.getenv('DB_HOST')
+DB_PORT = int(os.getenv('DB_PORT', '5432'))
+DB_NAME = os.getenv('DB_NAME', 'postgres')
+DB_USER = os.getenv('DB_USER', 'postgres')
+DB_PASSWORD = os.getenv('DB_PASSWORD')
+SECRET_ARN = os.getenv('SECRET_ARN')
+
+def resolve_password():
+    global DB_PASSWORD
+    if DB_PASSWORD:
+        return DB_PASSWORD
+    if SECRET_ARN and boto3 is not None:
+        try:
+            sm = boto3.client('secretsmanager', region_name=os.getenv('AWS_REGION', 'us-east-1'))
+            sec = sm.get_secret_value(SecretId=SECRET_ARN)
+            if 'SecretString' in sec and sec['SecretString']:
+                data = json.loads(sec['SecretString'])
+            else:
+                blob = sec.get('SecretBinary')
+                if blob:
+                    decoded = base64.b64decode(blob)
+                    data = json.loads(decoded.decode('utf-8'))
+                else:
+                    data = {}
+            DB_PASSWORD = data.get('password') or DB_PASSWORD
+        except Exception as e:
+            print('Failed to read secret:', e)
+    return DB_PASSWORD
+
+def _to_jsonable(value):
+    if isinstance(value, Decimal):
+        return float(value)
+    if isinstance(value, (datetime, date)):
+        return value.isoformat()
+    return value
+
+def query_reports(limit=10):
+    pwd = resolve_password()
+    conn = pg8000.connect(host=DB_HOST, port=DB_PORT, database=DB_NAME, user=DB_USER, password=pwd, timeout=10)
+    try:
+        with conn.cursor() as cur:
+            cur.execute('SELECT report_id, customer_id, customer_name, region, owner_username, total_amount, status, created_at FROM reports ORDER BY report_id DESC LIMIT %s', (limit,))
+            rows = cur.fetchall()
+            cols = [d[0] for d in cur.description]
+            result = []
+            for r in rows:
+                obj = {cols[i]: _to_jsonable(r[i]) for i in range(len(cols))}
+                result.append(obj)
+            return result
+    finally:
+        conn.close()
+
+class Handler(http.server.BaseHTTPRequestHandler):
+    def do_GET(self):
+        if self.path.startswith('/health') or self.path.startswith('/reports/health'):
+            body = json.dumps({'service':'reports-service-v5','status':'healthy','db_host':DB_HOST}).encode()
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Content-Length', str(len(body)))
+            self.end_headers()
+            self.wfile.write(body); return
+        if self.path.startswith('/reports/query'):
+            try:
+                data = query_reports(20)
+                body = json.dumps({'items':data}).encode()
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.send_header('Content-Length', str(len(body)))
+                self.end_headers()
+                self.wfile.write(body); return
+            except Exception as e:
+                err = json.dumps({'error': 'query_failed', 'message': str(e)}).encode()
+                self.send_response(502)
+                self.send_header('Content-type', 'application/json')
+                self.send_header('Content-Length', str(len(err)))
+                self.end_headers()
+                self.wfile.write(err); return
+        self.send_response(404); self.end_headers()
+
+with socketserver.TCPServer(('', 8080), Handler) as httpd:
+    print('Reports Service V5 running on port 8080'); httpd.serve_forever()
+"""],
+            logging=ecs.LogDrivers.aws_logs(stream_prefix="reports-service", log_group=reports_log_group),
+            environment={
+                "SERVICE_NAME": "reports-service-v5",
+                "DB_HOST": self.database.instance_endpoint.hostname,
+                "DB_PORT": str(self.database.instance_endpoint.port),
+                "DB_NAME": "postgres",
+                "SECRET_ARN": self.database.secret.secret_arn
+            },
+            secrets={},
+            port_mappings=[ecs.PortMapping(container_port=8080, protocol=ecs.Protocol.TCP)]
+        )
+
+        # Permitir al contenedor leer el secreto en Secrets Manager
+        if self.database.secret is not None:
+            self.database.secret.grant_read(reports_task_def.task_role)
+            if reports_task_def.execution_role is not None:
+                self.database.secret.grant_read(reports_task_def.execution_role)
+
+        # Target group y service
+        reports_tg = elbv2.ApplicationTargetGroup(
+            self, "ReportsServiceTargetGroup",
+            port=8080,
+            protocol=elbv2.ApplicationProtocol.HTTP,
+            vpc=self.default_vpc,
+            target_type=elbv2.TargetType.IP,
+            health_check=elbv2.HealthCheck(path="/health", healthy_http_codes="200")
+        )
+
+        reports_service = ecs.FargateService(
+            self, "ReportsService",
+            cluster=self.ecs_cluster,
+            task_definition=reports_task_def,
+            desired_count=1,
+            security_groups=[ecs_sg],
+            assign_public_ip=True
+        )
+        reports_service.attach_to_application_target_group(reports_tg)
+
+        # Regla en el ALB para /reports*
+        self.alb_listener.add_target_groups(
+            "ReportsServiceRule",
+            target_groups=[reports_tg],
+            conditions=[elbv2.ListenerCondition.path_patterns(["/reports*"])],
+            priority=300
+        )
+
+        # API Gateway recurso /reports/query integrando al ALB
+        reports_res = self.api.root.add_resource("reports")
+        query_res = reports_res.add_resource("query")
+        http_integration = apigateway.HttpIntegration(
+            f"http://{self.alb.load_balancer_dns_name}/reports/query",
+            http_method="GET",
+            proxy=True
+        )
+
+        query_res.add_method(
+            "GET",
+            integration=http_integration,
+            authorizer=self.api_authorizer
+        )
 
     def _create_products_service(self, security_group):
         """Crear servicio de productos que usa RDS"""
