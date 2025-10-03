@@ -158,6 +158,69 @@ class MediSupplyStack(Stack):
             description="API para experimentos de confidencialidad y latencia"
         )
 
+        # Cognito User Pool (mínimo necesario para integrar con authorizer)
+        self.user_pool = cognito.UserPool(
+            self, "MediSupplyUserPool",
+            self_sign_up_enabled=True,
+            sign_in_aliases=cognito.SignInAliases(username=True, email=True)
+        )
+
+        # User Pool Client
+        self.user_pool_client = cognito.UserPoolClient(
+            self, "MediSupplyUserPoolClient",
+            user_pool=self.user_pool,
+            generate_secret=False
+        )
+
+        # Cognito User Pool Groups (para autorizaciones por rol)
+        self.admin_group = cognito.CfnUserPoolGroup(
+            self, "AdminGroup",
+            user_pool_id=self.user_pool.user_pool_id,
+            group_name="admin",
+            description="Administradores con acceso completo",
+            precedence=1
+        )
+
+        self.compras_group = cognito.CfnUserPoolGroup(
+            self, "ComprasGroup",
+            user_pool_id=self.user_pool.user_pool_id,
+            group_name="compras",
+            description="Equipo de compras y proveedores",
+            precedence=10
+        )
+
+        self.logistica_group = cognito.CfnUserPoolGroup(
+            self, "LogisticaGroup",
+            user_pool_id=self.user_pool.user_pool_id,
+            group_name="logistica",
+            description="Equipo de logística e inventarios",
+            precedence=20
+        )
+
+        self.ventas_group = cognito.CfnUserPoolGroup(
+            self, "VentasGroup",
+            user_pool_id=self.user_pool.user_pool_id,
+            group_name="ventas",
+            description="Fuerza de ventas y comerciales",
+            precedence=30
+        )
+
+        # Lambda Autorizadora
+        self.authorizer_lambda = lambda_.Function(
+            self, "MediSupplySecurityAuthorizer",
+            runtime=lambda_.Runtime.PYTHON_3_9,
+            handler="authorizer.lambda_handler",
+            code=lambda_.Code.from_asset("lambda"),
+            timeout=Duration.seconds(30)
+        )
+
+        # API Gateway Token Authorizer usando la Lambda
+        self.cognito_authorizer = apigateway.TokenAuthorizer(
+            self, "MediSupplyLambdaAuthorizer",
+            handler=self.authorizer_lambda,
+            authorizer_name="MediSupply-Security-Authorizer"
+        )
+
 
     def _create_services(self):
         """Crear servicios necesarios para MediSupplys"""
@@ -245,6 +308,7 @@ class MediSupplyStack(Stack):
                 f"http://{self.alb.load_balancer_dns_name}/products/available",
                 http_method="GET"
             ),
+            authorizer=self.cognito_authorizer
         )
 
     def _configure_reports(self):

@@ -6,7 +6,7 @@ from stack import ExperimentoStack
 app = cdk.App()
 
 # Stack principal para los experimentos
-ExperimentoStack(app, "ExperimentoStack",
+ExperimentoStack(app, "MediSupplyStack",
     # Configuración del ambiente
     env=cdk.Environment(
         account=os.getenv('CDK_DEFAULT_ACCOUNT'),
