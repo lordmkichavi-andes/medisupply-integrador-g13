@@ -219,11 +219,12 @@ class MediSupplyStack(Stack):
             timeout=Duration.seconds(30)
         )
 
-        # API Gateway Token Authorizer usando la Lambda
-        self.cognito_authorizer = apigateway.TokenAuthorizer(
+        # API Gateway Request Authorizer usando la Lambda (permite acceso a headers)
+        self.cognito_authorizer = apigateway.RequestAuthorizer(
             self, "MediSupplyLambdaAuthorizer",
             handler=self.authorizer_lambda,
-            authorizer_name="MediSupply-Security-Authorizer"
+            authorizer_name="MediSupply-Security-Authorizer",
+            identity_sources=[apigateway.IdentitySource.header("Authorization")]
         )
 
 
