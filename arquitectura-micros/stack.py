@@ -169,7 +169,12 @@ class MediSupplyStack(Stack):
         self.user_pool_client = cognito.UserPoolClient(
             self, "MediSupplyUserPoolClient",
             user_pool=self.user_pool,
-            generate_secret=False
+            generate_secret=False,
+            auth_flows=cognito.AuthFlow(
+                user_password=True,
+                admin_user_password=True,
+                user_srp=True
+            )
         )
 
         # Cognito User Pool Groups (para autorizaciones por rol)
