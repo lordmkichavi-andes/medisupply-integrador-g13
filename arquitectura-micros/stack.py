@@ -24,10 +24,10 @@ from services.users_service import UsersService
 
 class MediSupplyStack(Stack):
 
-    def __init__(self, scope: Construct, construct_id: str, experiment_config: dict, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, config: dict, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        self.experiment_config = experiment_config
+        self.config = config
 
         # Crear infraestructura base
         self._create_infrastructure()
@@ -230,7 +230,7 @@ class MediSupplyStack(Stack):
 
     def _create_services(self):
         """Crear servicios necesarios para MediSupplys"""
-        if self.experiment_config.get('offer-manager', {}).get('enabled', False):
+        if self.config.get('offer-manager', {}).get('enabled', False):
             self.products_service = OfferManagerService(
                 self, "OfferManagerService",
                 cluster=self.ecs_cluster,
@@ -238,7 +238,7 @@ class MediSupplyStack(Stack):
                 database=self.transactional_database,
                 alb_listener=self.alb_listener
             )
-        if self.experiment_config.get('orders', {}).get('enabled', False):
+        if self.config.get('orders', {}).get('enabled', False):
             self.products_service = OrdersService(
                 self, "OrdersService",
                 cluster=self.ecs_cluster,
@@ -246,7 +246,7 @@ class MediSupplyStack(Stack):
                 database=self.transactional_database,
                 alb_listener=self.alb_listener
             )
-        if self.experiment_config.get('products', {}).get('enabled', False):
+        if self.config.get('products', {}).get('enabled', False):
             self.products_service = ProductsService(
                 self, "ProductsService",
                 cluster=self.ecs_cluster,
@@ -255,7 +255,7 @@ class MediSupplyStack(Stack):
                 cache=self.cache,
                 alb_listener=self.alb_listener
             )
-        if self.experiment_config.get('reports', {}).get('enabled', False):
+        if self.config.get('reports', {}).get('enabled', False):
             self.products_service = ReportsService(
                 self, "ReportsService",
                 cluster=self.ecs_cluster,
@@ -263,7 +263,7 @@ class MediSupplyStack(Stack):
                 database=self.transactional_database_database,
                 alb_listener=self.alb_listener
             )
-        if self.experiment_config.get('routes', {}).get('enabled', False):
+        if self.config.get('routes', {}).get('enabled', False):
             self.products_service = RoutesService(
                 self, "RoutesService",
                 cluster=self.ecs_cluster,
@@ -271,7 +271,7 @@ class MediSupplyStack(Stack):
                 database=self.transactional_database,
                 alb_listener=self.alb_listener
             )
-        if self.experiment_config.get('users', {}).get('enabled', False):
+        if self.config.get('users', {}).get('enabled', False):
             self.products_service = UsersService(
                 self, "UsersService",
                 cluster=self.ecs_cluster,
@@ -281,17 +281,17 @@ class MediSupplyStack(Stack):
             )
 
     def _configure_api(self):
-        if  self.experiment_config.get('offer-manager', {}).get('enabled', False):
+        if  self.config.get('offer-manager', {}).get('enabled', False):
             self._configure_offer_manager()
-        if  self.experiment_config.get('orders', {}).get('enabled', False):
+        if  self.config.get('orders', {}).get('enabled', False):
             self._configure_orders()
-        if  self.experiment_config.get('products', {}).get('enabled', False):
+        if  self.config.get('products', {}).get('enabled', False):
             self._configure_products()
-        if  self.experiment_config.get('reports', {}).get('enabled', False):
+        if  self.config.get('reports', {}).get('enabled', False):
             self._configure_reports()
-        if  self.experiment_config.get('routes', {}).get('enabled', False):
+        if  self.config.get('routes', {}).get('enabled', False):
             self._configure_routes()
-        if  self.experiment_config.get('users', {}).get('enabled', False):
+        if  self.config.get('users', {}).get('enabled', False):
             self._configure_users()
 
 
