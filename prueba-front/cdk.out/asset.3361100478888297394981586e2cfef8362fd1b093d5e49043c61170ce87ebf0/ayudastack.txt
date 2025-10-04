@@ -1,0 +1,290 @@
+from aws_cdk import (
+    Stack,
+    aws_ec2 as ec2,
+    aws_ecs as ecs,
+    aws_rds as rds,
+    aws_elasticache as elasticache,
+    aws_cognito as cognito,
+    aws_lambda as lambda_,
+    aws_apigateway as apigateway,
+    aws_elasticloadbalancingv2 as elbv2,
+    aws_iam as iam,
+    aws_logs as logs,
+    Duration,
+    RemovalPolicy
+)
+from constructs import Construct
+from services.products_service import ProductsService
+
+
+class ExperimentoStack(Stack):
+    """Stack principal para los experimentos de confidencialidad y latencia"""
+
+    def __init__(self, scope: Construct, construct_id: str, experiment_config: dict, **kwargs) -> None:
+        super().__init__(scope, construct_id, **kwargs)
+
+        self.experiment_config = experiment_config
+
+        # Crear infraestructura base
+        self._create_infrastructure()
+
+        # Crear servicios para experimentos
+        self._create_services()
+
+        # Configurar experimentos
+        self._configure_experiments()
+
+    def _create_infrastructure(self):
+        """Crear infraestructura base necesaria para los experimentos"""
+
+        # VPC
+        self.vpc = ec2.Vpc(
+            self, "ExperimentoVpc",
+            cidr="10.0.0.0/16",
+            max_azs=2,
+            nat_gateways=1,
+            subnet_configuration=[
+                ec2.SubnetConfiguration(
+                    name="Public",
+                    subnet_type=ec2.SubnetType.PUBLIC,
+                    cidr_mask=24
+                ),
+                ec2.SubnetConfiguration(
+                    name="Private",
+                    subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS,
+                    cidr_mask=24
+                )
+            ]
+        )
+
+        # ECS Cluster
+        self.ecs_cluster = ecs.Cluster(
+            self, "ExperimentoCluster",
+            vpc=self.vpc,
+            cluster_name="experimento-cluster"
+        )
+
+        # Security Group Compartido para Servicios Internos - SOLUCIÓN GENÉRICA
+        # ⚠️ DEBE IR ANTES que RDS y Redis para poder referenciarlo
+        self.internal_services_sg = ec2.SecurityGroup(
+            self, "InternalServicesSecurityGroup",
+            vpc=self.vpc,
+            description="Shared security group for all internal services communication",
+            allow_all_outbound=True
+        )
+        
+        # Permitir comunicación interna entre todos los servicios
+        self.internal_services_sg.add_ingress_rule(
+            peer=self.internal_services_sg,
+            connection=ec2.Port.all_tcp(),
+            description="Allow internal communication between all services"
+        )
+        
+        # También permitir desde la VPC (para casos específicos)
+        self.internal_services_sg.add_ingress_rule(
+            peer=ec2.Peer.ipv4(self.vpc.vpc_cidr_block),
+            connection=ec2.Port.all_tcp(),
+            description="Allow communication from VPC CIDR"
+        )
+
+        # Application Load Balancer
+        self.alb = elbv2.ApplicationLoadBalancer(
+            self, "ExperimentoALB",
+            vpc=self.vpc,
+            internet_facing=True
+        )
+
+        # Listener del ALB
+        self.alb_listener = self.alb.add_listener(
+            "ExperimentoALBListener",
+            port=80,
+            open=True,
+            default_action=elbv2.ListenerAction.fixed_response(
+                status_code=404,
+                message_body="Not Found"
+            )
+        )
+
+        # RDS Database - CONFIGURACIÓN GENÉRICA
+        self.database = rds.DatabaseInstance(
+            self, "ExperimentoDB",
+            engine=rds.DatabaseInstanceEngine.postgres(
+                version=rds.PostgresEngineVersion.VER_15_7
+            ),
+            instance_type=ec2.InstanceType.of(
+                ec2.InstanceClass.T3,
+                ec2.InstanceSize.MICRO
+            ),
+            vpc=self.vpc,
+            vpc_subnets=ec2.SubnetSelection(
+                subnet_type=ec2.SubnetType.PUBLIC  # Subnets públicas para E2E
+            ),
+            security_groups=[self.internal_services_sg],  # Usar security group compartido
+            allocated_storage=20,
+            deletion_protection=False,
+            removal_policy=RemovalPolicy.DESTROY,
+            delete_automated_backups=True,
+            publicly_accessible=True  # Acceso público para E2E testing
+        )
+
+        # ElastiCache Subnet Group - SUBNETS PÚBLICAS para E2E
+        cache_subnet_group = elasticache.CfnSubnetGroup(
+            self, "CacheSubnetGroup",
+            description="PUBLIC subnet group for Redis cache - E2E testing",
+            subnet_ids=[subnet.subnet_id for subnet in self.vpc.public_subnets]
+        )
+
+        # Redis Security Group - COMPLETAMENTE PÚBLICO para E2E
+        redis_public_sg = ec2.SecurityGroup(
+            self, "RedisPublicSecurityGroup",
+            vpc=self.vpc,
+            description="PUBLIC access for Redis cache - E2E testing",
+            allow_all_outbound=True
+        )
+        
+        # Permitir acceso público a Redis
+        redis_public_sg.add_ingress_rule(
+            peer=ec2.Peer.any_ipv4(),
+            connection=ec2.Port.tcp(6379),
+            description="Allow PUBLIC access to Redis for E2E testing"
+        )
+
+        # ElastiCache Redis - COMPLETAMENTE PÚBLICO
+        self.cache = elasticache.CfnCacheCluster(
+            self, "ExperimentoCache",
+            cache_node_type="cache.t3.micro",
+            num_cache_nodes=1,
+            engine="redis",
+            vpc_security_group_ids=[redis_public_sg.security_group_id],  # ✅ Security group público
+            cache_subnet_group_name=cache_subnet_group.ref
+        )
+        # Cognito User Pool - CONFIGURACIÓN COMPLETA PARA E2E
+        self.user_pool = cognito.UserPool(
+            self, "ConfidentialityUserPool",
+            user_pool_name="medisupply-confidentiality-pool",
+            self_sign_up_enabled=True,
+            sign_in_aliases=cognito.SignInAliases(
+                username=True,
+                email=True
+            ),
+            standard_attributes=cognito.StandardAttributes(
+                email=cognito.StandardAttribute(required=True, mutable=True),
+                timezone=cognito.StandardAttribute(required=False, mutable=True),
+                locale=cognito.StandardAttribute(required=False, mutable=True)
+            ),
+            custom_attributes={
+                'department': cognito.StringAttribute(min_len=2, max_len=50, mutable=True),
+                'risk_tolerance': cognito.StringAttribute(min_len=1, max_len=10, mutable=True),
+                'allowed_countries': cognito.StringAttribute(min_len=2, max_len=200, mutable=True),
+                'access_window_start': cognito.StringAttribute(min_len=4, max_len=5, mutable=True),
+                'access_window_end': cognito.StringAttribute(min_len=4, max_len=5, mutable=True),
+                'region': cognito.StringAttribute(min_len=2, max_len=50, mutable=True),
+                'country': cognito.StringAttribute(min_len=2, max_len=50, mutable=True),
+                'role': cognito.StringAttribute(min_len=2, max_len=20, mutable=True),
+                'user_timezone': cognito.StringAttribute(min_len=3, max_len=50, mutable=True),
+                'allowed_geographies': cognito.StringAttribute(min_len=2, max_len=500, mutable=True)
+            },
+            password_policy=cognito.PasswordPolicy(
+                min_length=8,
+                require_lowercase=True,
+                require_uppercase=True,
+                require_digits=True,
+                require_symbols=True
+            ),
+            account_recovery=cognito.AccountRecovery.EMAIL_ONLY
+        )
+
+        # User Pool Groups (Roles) - MediSupply
+        self.admin_group = cognito.CfnUserPoolGroup(
+            self, "AdminGroup",
+            user_pool_id=self.user_pool.user_pool_id,
+            group_name="admin",
+            description="Administradores con acceso completo",
+            precedence=1
+        )
+
+        # Nota: Grupos adicionales (compras, logistica, ventas, clientes) se gestionan manualmente
+        # para evitar conflictos con recursos ya creados fuera de CloudFormation.
+
+        # User Pool Client - CONFIGURACIÓN BÁSICA (se configurará manualmente después)
+        self.user_pool_client = cognito.UserPoolClient(
+            self, "ConfidentialityUserPoolClient",
+            user_pool=self.user_pool,
+            user_pool_client_name="medisupply-client",
+            generate_secret=False,  # Para SPAs
+            auth_flows=cognito.AuthFlow(
+                user_password=True,
+                user_srp=True,
+                admin_user_password=True
+            ),
+            o_auth=cognito.OAuthSettings(
+                flows=cognito.OAuthFlows(
+                    implicit_code_grant=True
+                ),
+                scopes=[cognito.OAuthScope.OPENID, cognito.OAuthScope.EMAIL, cognito.OAuthScope.PROFILE]
+            )
+        )
+
+        # Lambda Autorizadora
+        self.authorizer_lambda = lambda_.Function(
+            self, "SecurityAuthorizer",
+            runtime=lambda_.Runtime.PYTHON_3_9,
+            handler="authorizer_simple.lambda_handler",
+            code=lambda_.Code.from_asset("lambda"),
+            timeout=Duration.seconds(30)
+        )
+
+        # API Gateway
+        self.api = apigateway.RestApi(
+            self, "ExperimentoAPI",
+            rest_api_name="Experimento API",
+            description="API para experimentos de confidencialidad y latencia"
+        )
+
+        # Autorizador para API Gateway
+        self.cognito_authorizer = apigateway.TokenAuthorizer(
+            self, "SecurityLambdaAuthorizer",
+            handler=self.authorizer_lambda,
+            authorizer_name="MediSupply-Security-Authorizer"
+        )
+
+
+    def _create_services(self):
+        """Crear servicios necesarios para los experimentos"""
+
+
+        # Products Service (para experimento de latencia)
+        if self.experiment_config.get('latency', {}).get('enabled', False):
+            self.products_service = ProductsService(
+                self, "ProductsService",
+                cluster=self.ecs_cluster,
+                vpc=self.vpc,
+                database=self.database,
+                cache=self.cache,
+                alb_listener=self.alb_listener
+            )
+
+    def _configure_experiments(self):
+        """Configurar experimentos específicos"""
+
+        # Configurar experimento de latencia
+        if self.experiment_config.get('latency', {}).get('enabled', False):
+            self._configure_latency_experiment()
+
+    def _configure_confidentiality_experiment(self):
+        """Configurar experimento de confidencialidad"""
+
+
+    def _configure_latency_experiment(self):
+        """Configurar experimento de latencia"""
+
+        # Endpoint para Products Service CON AUTORIZACIÓN
+        products_resource = self.api.root.add_resource("products")
+        products_resource.add_method(
+            "GET",
+            apigateway.HttpIntegration(
+                f"http://{self.alb.load_balancer_dns_name}/products/available",
+                http_method="GET"
+            ),
+            authorizer=self.cognito_authorizer  # ← AUTORIZACIÓN ACTIVADA
+        )

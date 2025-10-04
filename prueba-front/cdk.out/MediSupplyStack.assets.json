@@ -1,0 +1,95 @@
+{
+  "version": "48.0.0",
+  "files": {
+    "7fa1e366ee8a9ded01fc355f704cff92bfd179574e6f9cfee800a3541df1b200": {
+      "displayName": "MediSupplyStack/Custom::VpcRestrictDefaultSGCustomResourceProvider Code",
+      "source": {
+        "path": "asset.7fa1e366ee8a9ded01fc355f704cff92bfd179574e6f9cfee800a3541df1b200",
+        "packaging": "zip"
+      },
+      "destinations": {
+        "120569610818-us-east-1-669d2100": {
+          "bucketName": "cdk-exp-assets-120569610818-us-east-1",
+          "objectKey": "7fa1e366ee8a9ded01fc355f704cff92bfd179574e6f9cfee800a3541df1b200.zip",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::120569610818:role/cdk-exp-file-publishing-role-120569610818-us-east-1"
+        }
+      }
+    },
+    "fb3c0e4727f08eff8b48b0542b0146872c965f6f8620205c2be0cd65e4e4a5dd": {
+      "displayName": "MediSupplySecurityAuthorizer/Code",
+      "source": {
+        "path": "asset.fb3c0e4727f08eff8b48b0542b0146872c965f6f8620205c2be0cd65e4e4a5dd",
+        "packaging": "zip"
+      },
+      "destinations": {
+        "120569610818-us-east-1-d658ff30": {
+          "bucketName": "cdk-exp-assets-120569610818-us-east-1",
+          "objectKey": "fb3c0e4727f08eff8b48b0542b0146872c965f6f8620205c2be0cd65e4e4a5dd.zip",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::120569610818:role/cdk-exp-file-publishing-role-120569610818-us-east-1"
+        }
+      }
+    },
+    "faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6": {
+      "displayName": "MediSupplyStack/Custom::S3AutoDeleteObjectsCustomResourceProvider Code",
+      "source": {
+        "path": "asset.faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6",
+        "packaging": "zip"
+      },
+      "destinations": {
+        "120569610818-us-east-1-b6cdf492": {
+          "bucketName": "cdk-exp-assets-120569610818-us-east-1",
+          "objectKey": "faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6.zip",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::120569610818:role/cdk-exp-file-publishing-role-120569610818-us-east-1"
+        }
+      }
+    },
+    "a6ca5e1c020f75c1851b44222e68362a880d916ef8310fb2f24dd7dd589f3367": {
+      "displayName": "MediSupplyStack Template",
+      "source": {
+        "path": "MediSupplyStack.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "120569610818-us-east-1-8843df50": {
+          "bucketName": "cdk-exp-assets-120569610818-us-east-1",
+          "objectKey": "a6ca5e1c020f75c1851b44222e68362a880d916ef8310fb2f24dd7dd589f3367.json",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::120569610818:role/cdk-exp-file-publishing-role-120569610818-us-east-1"
+        }
+      }
+    }
+  },
+  "dockerImages": {
+    "61ee05d4fb1f56792345d07bb3becc2ea6fb114583281bcb7e5aeba4a2575bee": {
+      "displayName": "ProductsService/ProductsServiceTaskDefinition/ProductsServiceContainer/AssetImage",
+      "source": {
+        "directory": "asset.61ee05d4fb1f56792345d07bb3becc2ea6fb114583281bcb7e5aeba4a2575bee"
+      },
+      "destinations": {
+        "120569610818-us-east-1-2c2a2db2": {
+          "repositoryName": "cdk-exp-container-assets-120569610818-us-east-1",
+          "imageTag": "61ee05d4fb1f56792345d07bb3becc2ea6fb114583281bcb7e5aeba4a2575bee",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::120569610818:role/cdk-exp-image-publishing-role-120569610818-us-east-1"
+        }
+      }
+    },
+    "14a73f17dc2c9750e1078618a7e3c40925b61564674ee9a80e9bb9606ed9fec8": {
+      "displayName": "UsersService/UsersServiceTaskDefinition/UsersServiceContainer/AssetImage",
+      "source": {
+        "directory": "asset.14a73f17dc2c9750e1078618a7e3c40925b61564674ee9a80e9bb9606ed9fec8"
+      },
+      "destinations": {
+        "120569610818-us-east-1-60955a68": {
+          "repositoryName": "cdk-exp-container-assets-120569610818-us-east-1",
+          "imageTag": "14a73f17dc2c9750e1078618a7e3c40925b61564674ee9a80e9bb9606ed9fec8",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::120569610818:role/cdk-exp-image-publishing-role-120569610818-us-east-1"
+        }
+      }
+    }
+  }
+}

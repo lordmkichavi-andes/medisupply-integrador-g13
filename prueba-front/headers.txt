@@ -1,0 +1,15 @@
+HTTP/2 200 
+content-type: text/html; charset=utf-8
+content-length: 11001
+date: Fri, 03 Oct 2025 20:34:15 GMT
+x-amzn-remapped-server: gunicorn
+x-amzn-requestid: b8f38315-5f8b-45f6-a49e-da0e1b092d78
+x-amzn-remapped-content-length: 11001
+x-amzn-remapped-date: Fri, 03 Oct 2025 20:34:15 GMT
+x-amzn-remapped-connection: keep-alive
+x-amz-apigw-id: R4zzPFxeIAMEQOg=
+x-cache: Miss from cloudfront
+via: 1.1 31847af2bdf6b34a1bb209d60de0f25e.cloudfront.net (CloudFront)
+x-amz-cf-pop: BOG50-P2
+x-amz-cf-id: kqckwFSOQwf3BOGKdvSP976LS8gUe5WfNxSC_fF9-4NupctuU_Uing==
+

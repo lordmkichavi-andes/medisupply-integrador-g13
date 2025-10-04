@@ -1,0 +1,11 @@
+[
+  {
+    "op": "replace",
+    "path": "/authorizationType",
+    "value": "NONE"
+  },
+  {
+    "op": "remove",
+    "path": "/authorizerId"
+  }
+]

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediSupply - Sistema de Gestión</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .loading {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .api-info {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-online {
+            background: #28a745;
+        }
+        
+        .status-offline {
+            background: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🏥 MediSupply</div>
+        <div class="subtitle">Sistema de Gestión de Suministros Médicos</div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="group">Grupo de Usuario:</label>
+                <select id="group" required>
+                    <option value="">Seleccionar grupo...</option>
+                    <option value="admin">Admin - Acceso completo 24/7</option>
+                    <option value="clientes">Clientes - Horario comercial, solo Colombia</option>
+                    <option value="compras">Compras - Horario laboral, red corporativa</option>
+                    <option value="ventas">Ventas - Horario extendido</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="action">Acción:</label>
+                <select id="action" required>
+                    <option value="">Seleccionar acción...</option>
+                    <option value="test">Probar Autenticación</option>
+                    <option value="products">Consultar Productos</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="btn" id="submitBtn">
+                Ejecutar
+            </button>
+        </form>
+        
+        <div id="result"></div>
+        
+        <div class="api-info">
+            <h4>🔧 Información del Sistema</h4>
+            <p><span class="status-indicator status-online"></span>API Gateway: <span id="apiStatus">Conectando...</span></p>
+            <p><span class="status-indicator status-online"></span>Frontend: CloudFront + S3</p>
+            <p><span class="status-indicator status-online"></span>Autorizador: Lambda con validaciones múltiples</p>
+            <p><strong>Endpoint:</strong> <span id="apiEndpoint">Cargando...</span></p>
+        </div>
+    </div>
+
+    <script>
+        // Configuración
+        const API_BASE_URL = 'https://r1kyo276f3.execute-api.us-east-1.amazonaws.com/prod';
+        
+        // Elementos del DOM
+        const form = document.getElementById('loginForm');
+        const resultDiv = document.getElementById('result');
+        const submitBtn = document.getElementById('submitBtn');
+        const apiStatus = document.getElementById('apiStatus');
+        const apiEndpoint = document.getElementById('apiEndpoint');
+        
+        // Mostrar información del API
+        apiEndpoint.textContent = API_BASE_URL;
+        
+        // Generar token JWT simple para pruebas
+        function generateTestToken(group) {
+            // Función para codificar Base64 URL-safe
+            function base64UrlEncode(str) {
+                return btoa(str)
+                    .replace(/\+/g, '-')
+                    .replace(/\//g, '_')
+                    .replace(/=/g, '');
+            }
+            
+            const header = base64UrlEncode(JSON.stringify({alg: "HS256", typ: "JWT"}));
+            const now = Math.floor(Date.now() / 1000);
+            const payload = base64UrlEncode(JSON.stringify({
+                "cognito:groups": [group],
+                "sub": `test-${group}-${Date.now()}`,
+                "iat": now,
+                "exp": now + (8 * 60 * 60)  // 8 horas = 8 * 60 * 60 segundos
+            }));
+            const signature = base64UrlEncode("test-signature");
+            return `${header}.${payload}.${signature}`;
+        }
+        
+        // Mostrar resultado
+        function showResult(message, type = 'success') {
+            resultDiv.innerHTML = `<div class="result ${type}">${message}</div>`;
+        }
+        
+        // Mostrar loading
+        function showLoading(message = 'Procesando...') {
+            resultDiv.innerHTML = `<div class="result loading">${message}</div>`;
+        }
+        
+        // Probar conectividad del API
+        async function testApiConnectivity() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/products`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${generateTestToken('admin')}`
+                    }
+                });
+                
+                if (response.ok) {
+                    apiStatus.textContent = 'Conectado';
+                    apiStatus.parentElement.querySelector('.status-indicator').className = 'status-indicator status-online';
+                } else {
+                    apiStatus.textContent = `Error ${response.status}`;
+                    apiStatus.parentElement.querySelector('.status-indicator').className = 'status-indicator status-offline';
+                }
+            } catch (error) {
+                apiStatus.textContent = 'Sin conexión';
+                apiStatus.parentElement.querySelector('.status-indicator').className = 'status-indicator status-offline';
+            }
+        }
+        
+        // Ejecutar acción
+        async function executeAction(group, action) {
+            const token = generateTestToken(group);
+            
+            try {
+                if (action === 'test') {
+                    showLoading('Probando autenticación...');
+                    
+                    const response = await fetch(`${API_BASE_URL}/products`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        showResult(`
+                            ✅ <strong>Autenticación exitosa</strong><br>
+                            Grupo: ${group}<br>
+                            Status: ${response.status}<br>
+                            Productos encontrados: ${data.length || 'N/A'}
+                        `, 'success');
+                    } else {
+                        showResult(`
+                            ❌ <strong>Acceso denegado</strong><br>
+                            Status: ${response.status}<br>
+                            Razón: ${response.status === 403 ? 'Grupo/horario/IP no permitido' : 'Error de autenticación'}
+                        `, 'error');
+                    }
+                } else if (action === 'products') {
+                    showLoading('Consultando productos...');
+                    
+                    const response = await fetch(`${API_BASE_URL}/products`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        showResult(`
+                            ✅ <strong>Productos obtenidos</strong><br>
+                            Cantidad: ${data.length || 0}<br>
+                            Cache: ${response.headers.get('X-Cache') || 'N/A'}
+                        `, 'success');
+                    } else {
+                        showResult(`
+                            ❌ <strong>Error al consultar productos</strong><br>
+                            Status: ${response.status}
+                        `, 'error');
+                    }
+                }
+            } catch (error) {
+                showResult(`
+                    ❌ <strong>Error de conexión</strong><br>
+                    ${error.message}
+                `, 'error');
+            }
+        }
+        
+        // Manejar envío del formulario
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const group = document.getElementById('group').value;
+            const action = document.getElementById('action').value;
+            
+            if (!group || !action) {
+                showResult('Por favor selecciona un grupo y una acción', 'error');
+                return;
+            }
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Procesando...';
+            
+            await executeAction(group, action);
+            
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Ejecutar';
+        });
+        
+        // Probar conectividad al cargar
+        testApiConnectivity();
+        
+        // Actualizar conectividad cada 30 segundos
+        setInterval(testApiConnectivity, 30000);
+    </script>
+</body>
+</html>

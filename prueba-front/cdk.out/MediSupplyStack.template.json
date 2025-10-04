@@ -1,0 +1,2844 @@
+{
+ "Resources": {
+  "MediSupplyVpcBF56B557": {
+   "Type": "AWS::EC2::VPC",
+   "Properties": {
+    "CidrBlock": "10.0.0.0/16",
+    "EnableDnsHostnames": true,
+    "EnableDnsSupport": true,
+    "InstanceTenancy": "default",
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "MediSupplyStack/MediSupplyVpc"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyVpc/Resource"
+   }
+  },
+  "MediSupplyVpcPublicSubnet1SubnetA8AB43DA": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "us-east-1a",
+    "CidrBlock": "10.0.0.0/24",
+    "MapPublicIpOnLaunch": true,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Public"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Public"
+     },
+     {
+      "Key": "Name",
+      "Value": "MediSupplyStack/MediSupplyVpc/PublicSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "MediSupplyVpcBF56B557"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyVpc/PublicSubnet1/Subnet"
+   }
+  },
+  "MediSupplyVpcPublicSubnet1RouteTable23271529": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "MediSupplyStack/MediSupplyVpc/PublicSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "MediSupplyVpcBF56B557"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyVpc/PublicSubnet1/RouteTable"
+   }
+  },
+  "MediSupplyVpcPublicSubnet1RouteTableAssociationB6626445": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "MediSupplyVpcPublicSubnet1RouteTable23271529"
+    },
+    "SubnetId": {
+     "Ref": "MediSupplyVpcPublicSubnet1SubnetA8AB43DA"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyVpc/PublicSubnet1/RouteTableAssociation"
+   }
+  },
+  "MediSupplyVpcPublicSubnet1DefaultRoute8364ADB0": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "GatewayId": {
+     "Ref": "MediSupplyVpcIGW070DBE42"
+    },
+    "RouteTableId": {
+     "Ref": "MediSupplyVpcPublicSubnet1RouteTable23271529"
+    }
+   },
+   "DependsOn": [
+    "MediSupplyVpcVPCGW5A8A9A53"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyVpc/PublicSubnet1/DefaultRoute"
+   }
+  },
+  "MediSupplyVpcPublicSubnet1EIPE891D9B9": {
+   "Type": "AWS::EC2::EIP",
+   "Properties": {
+    "Domain": "vpc",
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "MediSupplyStack/MediSupplyVpc/PublicSubnet1"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyVpc/PublicSubnet1/EIP"
+   }
+  },
+  "MediSupplyVpcPublicSubnet1NATGateway47E551F5": {
+   "Type": "AWS::EC2::NatGateway",
+   "Properties": {
+    "AllocationId": {
+     "Fn::GetAtt": [
+      "MediSupplyVpcPublicSubnet1EIPE891D9B9",
+      "AllocationId"
+     ]
+    },
+    "SubnetId": {
+     "Ref": "MediSupplyVpcPublicSubnet1SubnetA8AB43DA"
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "MediSupplyStack/MediSupplyVpc/PublicSubnet1"
+     }
+    ]
+   },
+   "DependsOn": [
+    "MediSupplyVpcPublicSubnet1DefaultRoute8364ADB0",
+    "MediSupplyVpcPublicSubnet1RouteTableAssociationB6626445"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyVpc/PublicSubnet1/NATGateway"
+   }
+  },
+  "MediSupplyVpcPublicSubnet2Subnet02436B68": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "us-east-1b",
+    "CidrBlock": "10.0.1.0/24",
+    "MapPublicIpOnLaunch": true,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Public"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Public"
+     },
+     {
+      "Key": "Name",
+      "Value": "MediSupplyStack/MediSupplyVpc/PublicSubnet2"
+     }
+    ],
+    "VpcId": {
+     "Ref": "MediSupplyVpcBF56B557"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyVpc/PublicSubnet2/Subnet"
+   }
+  },
+  "MediSupplyVpcPublicSubnet2RouteTable566F1DA3": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "MediSupplyStack/MediSupplyVpc/PublicSubnet2"
+     }
+    ],
+    "VpcId": {
+     "Ref": "MediSupplyVpcBF56B557"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyVpc/PublicSubnet2/RouteTable"
+   }
+  },
+  "MediSupplyVpcPublicSubnet2RouteTableAssociationB798A844": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "MediSupplyVpcPublicSubnet2RouteTable566F1DA3"
+    },
+    "SubnetId": {
+     "Ref": "MediSupplyVpcPublicSubnet2Subnet02436B68"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyVpc/PublicSubnet2/RouteTableAssociation"
+   }
+  },
+  "MediSupplyVpcPublicSubnet2DefaultRoute2B85C549": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "GatewayId": {
+     "Ref": "MediSupplyVpcIGW070DBE42"
+    },
+    "RouteTableId": {
+     "Ref": "MediSupplyVpcPublicSubnet2RouteTable566F1DA3"
+    }
+   },
+   "DependsOn": [
+    "MediSupplyVpcVPCGW5A8A9A53"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyVpc/PublicSubnet2/DefaultRoute"
+   }
+  },
+  "MediSupplyVpcPrivateSubnet1SubnetA3875FD3": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "us-east-1a",
+    "CidrBlock": "10.0.2.0/24",
+    "MapPublicIpOnLaunch": false,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Private"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Private"
+     },
+     {
+      "Key": "Name",
+      "Value": "MediSupplyStack/MediSupplyVpc/PrivateSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "MediSupplyVpcBF56B557"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyVpc/PrivateSubnet1/Subnet"
+   }
+  },
+  "MediSupplyVpcPrivateSubnet1RouteTable63EA111E": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "MediSupplyStack/MediSupplyVpc/PrivateSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "MediSupplyVpcBF56B557"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyVpc/PrivateSubnet1/RouteTable"
+   }
+  },
+  "MediSupplyVpcPrivateSubnet1RouteTableAssociationF7F0AAFA": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "MediSupplyVpcPrivateSubnet1RouteTable63EA111E"
+    },
+    "SubnetId": {
+     "Ref": "MediSupplyVpcPrivateSubnet1SubnetA3875FD3"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyVpc/PrivateSubnet1/RouteTableAssociation"
+   }
+  },
+  "MediSupplyVpcPrivateSubnet1DefaultRoute59245033": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "NatGatewayId": {
+     "Ref": "MediSupplyVpcPublicSubnet1NATGateway47E551F5"
+    },
+    "RouteTableId": {
+     "Ref": "MediSupplyVpcPrivateSubnet1RouteTable63EA111E"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyVpc/PrivateSubnet1/DefaultRoute"
+   }
+  },
+  "MediSupplyVpcPrivateSubnet2SubnetD164FF44": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "us-east-1b",
+    "CidrBlock": "10.0.3.0/24",
+    "MapPublicIpOnLaunch": false,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Private"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Private"
+     },
+     {
+      "Key": "Name",
+      "Value": "MediSupplyStack/MediSupplyVpc/PrivateSubnet2"
+     }
+    ],
+    "VpcId": {
+     "Ref": "MediSupplyVpcBF56B557"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyVpc/PrivateSubnet2/Subnet"
+   }
+  },
+  "MediSupplyVpcPrivateSubnet2RouteTableBFAD5A16": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "MediSupplyStack/MediSupplyVpc/PrivateSubnet2"
+     }
+    ],
+    "VpcId": {
+     "Ref": "MediSupplyVpcBF56B557"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyVpc/PrivateSubnet2/RouteTable"
+   }
+  },
+  "MediSupplyVpcPrivateSubnet2RouteTableAssociationE2343B1F": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "MediSupplyVpcPrivateSubnet2RouteTableBFAD5A16"
+    },
+    "SubnetId": {
+     "Ref": "MediSupplyVpcPrivateSubnet2SubnetD164FF44"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyVpc/PrivateSubnet2/RouteTableAssociation"
+   }
+  },
+  "MediSupplyVpcPrivateSubnet2DefaultRouteB465B0C3": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "NatGatewayId": {
+     "Ref": "MediSupplyVpcPublicSubnet1NATGateway47E551F5"
+    },
+    "RouteTableId": {
+     "Ref": "MediSupplyVpcPrivateSubnet2RouteTableBFAD5A16"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyVpc/PrivateSubnet2/DefaultRoute"
+   }
+  },
+  "MediSupplyVpcIGW070DBE42": {
+   "Type": "AWS::EC2::InternetGateway",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "MediSupplyStack/MediSupplyVpc"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyVpc/IGW"
+   }
+  },
+  "MediSupplyVpcVPCGW5A8A9A53": {
+   "Type": "AWS::EC2::VPCGatewayAttachment",
+   "Properties": {
+    "InternetGatewayId": {
+     "Ref": "MediSupplyVpcIGW070DBE42"
+    },
+    "VpcId": {
+     "Ref": "MediSupplyVpcBF56B557"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyVpc/VPCGW"
+   }
+  },
+  "MediSupplyVpcRestrictDefaultSecurityGroupCustomResource670CC897": {
+   "Type": "Custom::VpcRestrictDefaultSG",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E",
+      "Arn"
+     ]
+    },
+    "DefaultSecurityGroupId": {
+     "Fn::GetAtt": [
+      "MediSupplyVpcBF56B557",
+      "DefaultSecurityGroup"
+     ]
+    },
+    "Account": "120569610818"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyVpc/RestrictDefaultSecurityGroupCustomResource/Default"
+   }
+  },
+  "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Version": "2012-10-17",
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ]
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+     }
+    ],
+    "Policies": [
+     {
+      "PolicyName": "Inline",
+      "PolicyDocument": {
+       "Version": "2012-10-17",
+       "Statement": [
+        {
+         "Effect": "Allow",
+         "Action": [
+          "ec2:AuthorizeSecurityGroupIngress",
+          "ec2:AuthorizeSecurityGroupEgress",
+          "ec2:RevokeSecurityGroupIngress",
+          "ec2:RevokeSecurityGroupEgress"
+         ],
+         "Resource": [
+          {
+           "Fn::Join": [
+            "",
+            [
+             "arn:aws:ec2:us-east-1:120569610818:security-group/",
+             {
+              "Fn::GetAtt": [
+               "MediSupplyVpcBF56B557",
+               "DefaultSecurityGroup"
+              ]
+             }
+            ]
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/Custom::VpcRestrictDefaultSGCustomResourceProvider/Role"
+   }
+  },
+  "CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-exp-assets-120569610818-us-east-1",
+     "S3Key": "7fa1e366ee8a9ded01fc355f704cff92bfd179574e6f9cfee800a3541df1b200.zip"
+    },
+    "Timeout": 900,
+    "MemorySize": 128,
+    "Handler": "__entrypoint__.handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs22.x",
+    "Description": "Lambda function for removing all inbound/outbound rules from the VPC default security group"
+   },
+   "DependsOn": [
+    "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/Custom::VpcRestrictDefaultSGCustomResourceProvider/Handler",
+    "aws:asset:path": "asset.7fa1e366ee8a9ded01fc355f704cff92bfd179574e6f9cfee800a3541df1b200",
+    "aws:asset:property": "Code"
+   }
+  },
+  "MediSupplyCluster1AF6A595": {
+   "Type": "AWS::ECS::Cluster",
+   "Properties": {
+    "ClusterName": "medi-supply-cluster"
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyCluster/Resource"
+   }
+  },
+  "MediSupplyALB9CB8B3FC": {
+   "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+   "Properties": {
+    "LoadBalancerAttributes": [
+     {
+      "Key": "deletion_protection.enabled",
+      "Value": "false"
+     }
+    ],
+    "Scheme": "internet-facing",
+    "SecurityGroups": [
+     {
+      "Fn::GetAtt": [
+       "MediSupplyALBSecurityGroup87FA9F68",
+       "GroupId"
+      ]
+     }
+    ],
+    "Subnets": [
+     {
+      "Ref": "MediSupplyVpcPublicSubnet1SubnetA8AB43DA"
+     },
+     {
+      "Ref": "MediSupplyVpcPublicSubnet2Subnet02436B68"
+     }
+    ],
+    "Type": "application"
+   },
+   "DependsOn": [
+    "MediSupplyVpcPublicSubnet1DefaultRoute8364ADB0",
+    "MediSupplyVpcPublicSubnet1RouteTableAssociationB6626445",
+    "MediSupplyVpcPublicSubnet2DefaultRoute2B85C549",
+    "MediSupplyVpcPublicSubnet2RouteTableAssociationB798A844"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyALB/Resource"
+   }
+  },
+  "MediSupplyALBSecurityGroup87FA9F68": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "Automatically created Security Group for ELB MediSupplyStackMediSupplyALB5CAD9233",
+    "SecurityGroupIngress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow from anyone on port 80",
+      "FromPort": 80,
+      "IpProtocol": "tcp",
+      "ToPort": 80
+     }
+    ],
+    "VpcId": {
+     "Ref": "MediSupplyVpcBF56B557"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyALB/SecurityGroup/Resource"
+   }
+  },
+  "MediSupplyALBSecurityGrouptoMediSupplyStackProductsServiceSecurityGroupBE11F21980803A0815A9": {
+   "Type": "AWS::EC2::SecurityGroupEgress",
+   "Properties": {
+    "Description": "Load balancer to target",
+    "DestinationSecurityGroupId": {
+     "Fn::GetAtt": [
+      "ProductsServiceSecurityGroupBAD7D708",
+      "GroupId"
+     ]
+    },
+    "FromPort": 8080,
+    "GroupId": {
+     "Fn::GetAtt": [
+      "MediSupplyALBSecurityGroup87FA9F68",
+      "GroupId"
+     ]
+    },
+    "IpProtocol": "tcp",
+    "ToPort": 8080
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyALB/SecurityGroup/to MediSupplyStackProductsServiceSecurityGroupBE11F219:8080"
+   }
+  },
+  "MediSupplyALBSecurityGrouptoMediSupplyStackUsersServiceSecurityGroup5BD0038480809EDCAC3A": {
+   "Type": "AWS::EC2::SecurityGroupEgress",
+   "Properties": {
+    "Description": "Load balancer to target",
+    "DestinationSecurityGroupId": {
+     "Fn::GetAtt": [
+      "UsersServiceSecurityGroupFBC277E6",
+      "GroupId"
+     ]
+    },
+    "FromPort": 8080,
+    "GroupId": {
+     "Fn::GetAtt": [
+      "MediSupplyALBSecurityGroup87FA9F68",
+      "GroupId"
+     ]
+    },
+    "IpProtocol": "tcp",
+    "ToPort": 8080
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyALB/SecurityGroup/to MediSupplyStackUsersServiceSecurityGroup5BD00384:8080"
+   }
+  },
+  "MediSupplyALBMediSupplyALBListener52E37331": {
+   "Type": "AWS::ElasticLoadBalancingV2::Listener",
+   "Properties": {
+    "DefaultActions": [
+     {
+      "FixedResponseConfig": {
+       "MessageBody": "Not Found",
+       "StatusCode": "404"
+      },
+      "Type": "fixed-response"
+     }
+    ],
+    "LoadBalancerArn": {
+     "Ref": "MediSupplyALB9CB8B3FC"
+    },
+    "Port": 80,
+    "Protocol": "HTTP"
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyALB/MediSupplyALBListener/Resource"
+   }
+  },
+  "MediSupplyALBMediSupplyALBListenerProductsServiceTargetGroupRule5EF88493": {
+   "Type": "AWS::ElasticLoadBalancingV2::ListenerRule",
+   "Properties": {
+    "Actions": [
+     {
+      "TargetGroupArn": {
+       "Ref": "ProductsServiceProductsServiceTargetGroup77004340"
+      },
+      "Type": "forward"
+     }
+    ],
+    "Conditions": [
+     {
+      "Field": "path-pattern",
+      "PathPatternConfig": {
+       "Values": [
+        "/products*"
+       ]
+      }
+     }
+    ],
+    "ListenerArn": {
+     "Ref": "MediSupplyALBMediSupplyALBListener52E37331"
+    },
+    "Priority": 200
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyALB/MediSupplyALBListener/ProductsServiceTargetGroupRule/Resource"
+   }
+  },
+  "MediSupplyALBMediSupplyALBListenerUsersServiceTargetGroupRule992F0C05": {
+   "Type": "AWS::ElasticLoadBalancingV2::ListenerRule",
+   "Properties": {
+    "Actions": [
+     {
+      "TargetGroupArn": {
+       "Ref": "UsersServiceUsersServiceTargetGroupA4D387F1"
+      },
+      "Type": "forward"
+     }
+    ],
+    "Conditions": [
+     {
+      "Field": "path-pattern",
+      "PathPatternConfig": {
+       "Values": [
+        "/users*"
+       ]
+      }
+     }
+    ],
+    "ListenerArn": {
+     "Ref": "MediSupplyALBMediSupplyALBListener52E37331"
+    },
+    "Priority": 100
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyALB/MediSupplyALBListener/UsersServiceTargetGroupRule/Resource"
+   }
+  },
+  "MediSupplyCoreDBSubnetGroupF5B75466": {
+   "Type": "AWS::RDS::DBSubnetGroup",
+   "Properties": {
+    "DBSubnetGroupDescription": "Subnet group for MediSupplyCoreDB database",
+    "SubnetIds": [
+     {
+      "Ref": "MediSupplyVpcPrivateSubnet1SubnetA3875FD3"
+     },
+     {
+      "Ref": "MediSupplyVpcPrivateSubnet2SubnetD164FF44"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyCoreDB/SubnetGroup/Default"
+   }
+  },
+  "MediSupplyCoreDBSecurityGroupDF84542D": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "Security group for MediSupplyCoreDB database",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "MediSupplyVpcBF56B557"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyCoreDB/SecurityGroup/Resource"
+   }
+  },
+  "MediSupplyCoreDBSecret41618967": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "Description": {
+     "Fn::Join": [
+      "",
+      [
+       "Generated by the CDK for stack: ",
+       {
+        "Ref": "AWS::StackName"
+       }
+      ]
+     ]
+    },
+    "GenerateSecretString": {
+     "ExcludeCharacters": " %+~`#$&*()|[]{}:;<>?!'/@\"\\",
+     "GenerateStringKey": "password",
+     "PasswordLength": 30,
+     "SecretStringTemplate": "{\"username\":\"postgres\"}"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyCoreDB/Secret/Resource"
+   }
+  },
+  "MediSupplyCoreDBSecretAttachment7C07CDE7": {
+   "Type": "AWS::SecretsManager::SecretTargetAttachment",
+   "Properties": {
+    "SecretId": {
+     "Ref": "MediSupplyCoreDBSecret41618967"
+    },
+    "TargetId": {
+     "Ref": "MediSupplyCoreDB236BA066"
+    },
+    "TargetType": "AWS::RDS::DBInstance"
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyCoreDB/Secret/Attachment/Resource"
+   }
+  },
+  "MediSupplyCoreDB236BA066": {
+   "Type": "AWS::RDS::DBInstance",
+   "Properties": {
+    "AllocatedStorage": "20",
+    "CopyTagsToSnapshot": true,
+    "DBInstanceClass": "db.t3.micro",
+    "DBSubnetGroupName": {
+     "Ref": "MediSupplyCoreDBSubnetGroupF5B75466"
+    },
+    "DeleteAutomatedBackups": true,
+    "DeletionProtection": false,
+    "Engine": "postgres",
+    "EngineVersion": "15.7",
+    "MasterUserPassword": {
+     "Fn::Join": [
+      "",
+      [
+       "{{resolve:secretsmanager:",
+       {
+        "Ref": "MediSupplyCoreDBSecret41618967"
+       },
+       ":SecretString:password::}}"
+      ]
+     ]
+    },
+    "MasterUsername": {
+     "Fn::Join": [
+      "",
+      [
+       "{{resolve:secretsmanager:",
+       {
+        "Ref": "MediSupplyCoreDBSecret41618967"
+       },
+       ":SecretString:username::}}"
+      ]
+     ]
+    },
+    "PubliclyAccessible": false,
+    "StorageType": "gp2",
+    "VPCSecurityGroups": [
+     {
+      "Fn::GetAtt": [
+       "MediSupplyCoreDBSecurityGroupDF84542D",
+       "GroupId"
+      ]
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyCoreDB/Resource"
+   }
+  },
+  "MediSupplyTransactionalDBSubnetGroupBA42BF33": {
+   "Type": "AWS::RDS::DBSubnetGroup",
+   "Properties": {
+    "DBSubnetGroupDescription": "Subnet group for MediSupplyTransactionalDB database",
+    "SubnetIds": [
+     {
+      "Ref": "MediSupplyVpcPrivateSubnet1SubnetA3875FD3"
+     },
+     {
+      "Ref": "MediSupplyVpcPrivateSubnet2SubnetD164FF44"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyTransactionalDB/SubnetGroup/Default"
+   }
+  },
+  "MediSupplyTransactionalDBSecurityGroup4FB6D2BA": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "Security group for MediSupplyTransactionalDB database",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "MediSupplyVpcBF56B557"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyTransactionalDB/SecurityGroup/Resource"
+   }
+  },
+  "MediSupplyTransactionalDBSecret71030A80": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "Description": {
+     "Fn::Join": [
+      "",
+      [
+       "Generated by the CDK for stack: ",
+       {
+        "Ref": "AWS::StackName"
+       }
+      ]
+     ]
+    },
+    "GenerateSecretString": {
+     "ExcludeCharacters": " %+~`#$&*()|[]{}:;<>?!'/@\"\\",
+     "GenerateStringKey": "password",
+     "PasswordLength": 30,
+     "SecretStringTemplate": "{\"username\":\"postgres\"}"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyTransactionalDB/Secret/Resource"
+   }
+  },
+  "MediSupplyTransactionalDBSecretAttachment2F8A86C4": {
+   "Type": "AWS::SecretsManager::SecretTargetAttachment",
+   "Properties": {
+    "SecretId": {
+     "Ref": "MediSupplyTransactionalDBSecret71030A80"
+    },
+    "TargetId": {
+     "Ref": "MediSupplyTransactionalDBA98534AD"
+    },
+    "TargetType": "AWS::RDS::DBInstance"
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyTransactionalDB/Secret/Attachment/Resource"
+   }
+  },
+  "MediSupplyTransactionalDBA98534AD": {
+   "Type": "AWS::RDS::DBInstance",
+   "Properties": {
+    "AllocatedStorage": "20",
+    "CopyTagsToSnapshot": true,
+    "DBInstanceClass": "db.t3.micro",
+    "DBSubnetGroupName": {
+     "Ref": "MediSupplyTransactionalDBSubnetGroupBA42BF33"
+    },
+    "DeleteAutomatedBackups": true,
+    "DeletionProtection": false,
+    "Engine": "postgres",
+    "EngineVersion": "15.7",
+    "MasterUserPassword": {
+     "Fn::Join": [
+      "",
+      [
+       "{{resolve:secretsmanager:",
+       {
+        "Ref": "MediSupplyTransactionalDBSecret71030A80"
+       },
+       ":SecretString:password::}}"
+      ]
+     ]
+    },
+    "MasterUsername": {
+     "Fn::Join": [
+      "",
+      [
+       "{{resolve:secretsmanager:",
+       {
+        "Ref": "MediSupplyTransactionalDBSecret71030A80"
+       },
+       ":SecretString:username::}}"
+      ]
+     ]
+    },
+    "PubliclyAccessible": false,
+    "StorageType": "gp2",
+    "VPCSecurityGroups": [
+     {
+      "Fn::GetAtt": [
+       "MediSupplyTransactionalDBSecurityGroup4FB6D2BA",
+       "GroupId"
+      ]
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyTransactionalDB/Resource"
+   }
+  },
+  "RedisSecurityGroupB05951F6": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "Security group for Redis cache",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "MediSupplyVpcBF56B557"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/RedisSecurityGroup/Resource"
+   }
+  },
+  "CacheSubnetGroup": {
+   "Type": "AWS::ElastiCache::SubnetGroup",
+   "Properties": {
+    "Description": "Subnet group for Redis cache",
+    "SubnetIds": [
+     {
+      "Ref": "MediSupplyVpcPrivateSubnet1SubnetA3875FD3"
+     },
+     {
+      "Ref": "MediSupplyVpcPrivateSubnet2SubnetD164FF44"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/CacheSubnetGroup"
+   }
+  },
+  "MediSupplyCache": {
+   "Type": "AWS::ElastiCache::CacheCluster",
+   "Properties": {
+    "CacheNodeType": "cache.t3.micro",
+    "CacheSubnetGroupName": {
+     "Ref": "CacheSubnetGroup"
+    },
+    "Engine": "redis",
+    "NumCacheNodes": 1,
+    "VpcSecurityGroupIds": [
+     {
+      "Fn::GetAtt": [
+       "RedisSecurityGroupB05951F6",
+       "GroupId"
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyCache"
+   }
+  },
+  "MediSupplyAPI7631659C": {
+   "Type": "AWS::ApiGateway::RestApi",
+   "Properties": {
+    "Description": "API para experimentos de confidencialidad y latencia",
+    "Name": "MediSupply API"
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyAPI/Resource"
+   }
+  },
+  "MediSupplyAPIDeployment1A9AE3D785cda50d1f45ef9fd01cb0eb4c224cde": {
+   "Type": "AWS::ApiGateway::Deployment",
+   "Properties": {
+    "Description": "API para experimentos de confidencialidad y latencia",
+    "RestApiId": {
+     "Ref": "MediSupplyAPI7631659C"
+    }
+   },
+   "DependsOn": [
+    "MediSupplyAPIOPTIONS1DD6AB2E",
+    "MediSupplyAPIproductsDELETED3B55158",
+    "MediSupplyAPIproductsGETA52042B3",
+    "MediSupplyAPIproductsOPTIONSC70C139E",
+    "MediSupplyAPIproductsPOST6E104354",
+    "MediSupplyAPIproductsPUTB65DECE8",
+    "MediSupplyAPIproducts219318E6",
+    "MediSupplyAPIusersDELETE7E27C390",
+    "MediSupplyAPIusersGET41732E67",
+    "MediSupplyAPIusersPOST1DF33544",
+    "MediSupplyAPIusersPUTB72B85CE",
+    "MediSupplyAPIusers82B0CB32",
+    "MediSupplyLambdaAuthorizer5B42BB3D"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyAPI/Deployment/Resource",
+    "aws:cdk:do-not-refactor": true
+   }
+  },
+  "MediSupplyAPIDeploymentStageprod05B38190": {
+   "Type": "AWS::ApiGateway::Stage",
+   "Properties": {
+    "DeploymentId": {
+     "Ref": "MediSupplyAPIDeployment1A9AE3D785cda50d1f45ef9fd01cb0eb4c224cde"
+    },
+    "RestApiId": {
+     "Ref": "MediSupplyAPI7631659C"
+    },
+    "StageName": "prod"
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyAPI/DeploymentStage.prod/Resource"
+   }
+  },
+  "MediSupplyAPIproducts219318E6": {
+   "Type": "AWS::ApiGateway::Resource",
+   "Properties": {
+    "ParentId": {
+     "Fn::GetAtt": [
+      "MediSupplyAPI7631659C",
+      "RootResourceId"
+     ]
+    },
+    "PathPart": "products",
+    "RestApiId": {
+     "Ref": "MediSupplyAPI7631659C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyAPI/Default/products/Resource"
+   }
+  },
+  "MediSupplyAPIproductsGETA52042B3": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "CUSTOM",
+    "AuthorizerId": {
+     "Ref": "MediSupplyLambdaAuthorizer5B42BB3D"
+    },
+    "HttpMethod": "GET",
+    "Integration": {
+     "IntegrationHttpMethod": "GET",
+     "Type": "HTTP_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "http://",
+        {
+         "Fn::GetAtt": [
+          "MediSupplyALB9CB8B3FC",
+          "DNSName"
+         ]
+        },
+        "/products/available"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "MediSupplyAPIproducts219318E6"
+    },
+    "RestApiId": {
+     "Ref": "MediSupplyAPI7631659C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyAPI/Default/products/GET/Resource"
+   }
+  },
+  "MediSupplyAPIproductsPOST6E104354": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "CUSTOM",
+    "AuthorizerId": {
+     "Ref": "MediSupplyLambdaAuthorizer5B42BB3D"
+    },
+    "HttpMethod": "POST",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "HTTP_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "http://",
+        {
+         "Fn::GetAtt": [
+          "MediSupplyALB9CB8B3FC",
+          "DNSName"
+         ]
+        },
+        "/products/available"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "MediSupplyAPIproducts219318E6"
+    },
+    "RestApiId": {
+     "Ref": "MediSupplyAPI7631659C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyAPI/Default/products/POST/Resource"
+   }
+  },
+  "MediSupplyAPIproductsPUTB65DECE8": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "CUSTOM",
+    "AuthorizerId": {
+     "Ref": "MediSupplyLambdaAuthorizer5B42BB3D"
+    },
+    "HttpMethod": "PUT",
+    "Integration": {
+     "IntegrationHttpMethod": "PUT",
+     "Type": "HTTP_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "http://",
+        {
+         "Fn::GetAtt": [
+          "MediSupplyALB9CB8B3FC",
+          "DNSName"
+         ]
+        },
+        "/products/available"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "MediSupplyAPIproducts219318E6"
+    },
+    "RestApiId": {
+     "Ref": "MediSupplyAPI7631659C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyAPI/Default/products/PUT/Resource"
+   }
+  },
+  "MediSupplyAPIproductsDELETED3B55158": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "CUSTOM",
+    "AuthorizerId": {
+     "Ref": "MediSupplyLambdaAuthorizer5B42BB3D"
+    },
+    "HttpMethod": "DELETE",
+    "Integration": {
+     "IntegrationHttpMethod": "DELETE",
+     "Type": "HTTP_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "http://",
+        {
+         "Fn::GetAtt": [
+          "MediSupplyALB9CB8B3FC",
+          "DNSName"
+         ]
+        },
+        "/products/available"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "MediSupplyAPIproducts219318E6"
+    },
+    "RestApiId": {
+     "Ref": "MediSupplyAPI7631659C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyAPI/Default/products/DELETE/Resource"
+   }
+  },
+  "MediSupplyAPIproductsOPTIONSC70C139E": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "NONE",
+    "HttpMethod": "OPTIONS",
+    "Integration": {
+     "IntegrationResponses": [
+      {
+       "ResponseParameters": {
+        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token,X-Requested-With,Accept,Origin'",
+        "method.response.header.Access-Control-Allow-Origin": "'*'",
+        "method.response.header.Access-Control-Allow-Methods": "'GET,POST,PUT,DELETE,OPTIONS'"
+       },
+       "StatusCode": "200"
+      }
+     ],
+     "RequestTemplates": {
+      "application/json": "{\"statusCode\": 200}"
+     },
+     "Type": "MOCK"
+    },
+    "MethodResponses": [
+     {
+      "ResponseParameters": {
+       "method.response.header.Access-Control-Allow-Headers": true,
+       "method.response.header.Access-Control-Allow-Origin": true,
+       "method.response.header.Access-Control-Allow-Methods": true
+      },
+      "StatusCode": "200"
+     }
+    ],
+    "ResourceId": {
+     "Ref": "MediSupplyAPIproducts219318E6"
+    },
+    "RestApiId": {
+     "Ref": "MediSupplyAPI7631659C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyAPI/Default/products/OPTIONS/Resource"
+   }
+  },
+  "MediSupplyAPIusers82B0CB32": {
+   "Type": "AWS::ApiGateway::Resource",
+   "Properties": {
+    "ParentId": {
+     "Fn::GetAtt": [
+      "MediSupplyAPI7631659C",
+      "RootResourceId"
+     ]
+    },
+    "PathPart": "users",
+    "RestApiId": {
+     "Ref": "MediSupplyAPI7631659C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyAPI/Default/users/Resource"
+   }
+  },
+  "MediSupplyAPIusersGET41732E67": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "CUSTOM",
+    "AuthorizerId": {
+     "Ref": "MediSupplyLambdaAuthorizer5B42BB3D"
+    },
+    "HttpMethod": "GET",
+    "Integration": {
+     "IntegrationHttpMethod": "GET",
+     "Type": "HTTP_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "http://",
+        {
+         "Fn::GetAtt": [
+          "MediSupplyALB9CB8B3FC",
+          "DNSName"
+         ]
+        },
+        "/users"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "MediSupplyAPIusers82B0CB32"
+    },
+    "RestApiId": {
+     "Ref": "MediSupplyAPI7631659C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyAPI/Default/users/GET/Resource"
+   }
+  },
+  "MediSupplyAPIusersPOST1DF33544": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "CUSTOM",
+    "AuthorizerId": {
+     "Ref": "MediSupplyLambdaAuthorizer5B42BB3D"
+    },
+    "HttpMethod": "POST",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "HTTP_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "http://",
+        {
+         "Fn::GetAtt": [
+          "MediSupplyALB9CB8B3FC",
+          "DNSName"
+         ]
+        },
+        "/users"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "MediSupplyAPIusers82B0CB32"
+    },
+    "RestApiId": {
+     "Ref": "MediSupplyAPI7631659C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyAPI/Default/users/POST/Resource"
+   }
+  },
+  "MediSupplyAPIusersPUTB72B85CE": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "CUSTOM",
+    "AuthorizerId": {
+     "Ref": "MediSupplyLambdaAuthorizer5B42BB3D"
+    },
+    "HttpMethod": "PUT",
+    "Integration": {
+     "IntegrationHttpMethod": "PUT",
+     "Type": "HTTP_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "http://",
+        {
+         "Fn::GetAtt": [
+          "MediSupplyALB9CB8B3FC",
+          "DNSName"
+         ]
+        },
+        "/users"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "MediSupplyAPIusers82B0CB32"
+    },
+    "RestApiId": {
+     "Ref": "MediSupplyAPI7631659C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyAPI/Default/users/PUT/Resource"
+   }
+  },
+  "MediSupplyAPIusersDELETE7E27C390": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "CUSTOM",
+    "AuthorizerId": {
+     "Ref": "MediSupplyLambdaAuthorizer5B42BB3D"
+    },
+    "HttpMethod": "DELETE",
+    "Integration": {
+     "IntegrationHttpMethod": "DELETE",
+     "Type": "HTTP_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "http://",
+        {
+         "Fn::GetAtt": [
+          "MediSupplyALB9CB8B3FC",
+          "DNSName"
+         ]
+        },
+        "/users"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "MediSupplyAPIusers82B0CB32"
+    },
+    "RestApiId": {
+     "Ref": "MediSupplyAPI7631659C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyAPI/Default/users/DELETE/Resource"
+   }
+  },
+  "MediSupplyAPIOPTIONS1DD6AB2E": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "ApiKeyRequired": false,
+    "AuthorizationType": "NONE",
+    "HttpMethod": "OPTIONS",
+    "Integration": {
+     "IntegrationResponses": [
+      {
+       "ResponseParameters": {
+        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token,X-Requested-With,Accept,Origin'",
+        "method.response.header.Access-Control-Allow-Origin": "'*'",
+        "method.response.header.Access-Control-Allow-Methods": "'GET,POST,PUT,DELETE,OPTIONS,PATCH,HEAD'",
+        "method.response.header.Access-Control-Max-Age": "'86400'"
+       },
+       "StatusCode": "204"
+      }
+     ],
+     "RequestTemplates": {
+      "application/json": "{ statusCode: 200 }"
+     },
+     "Type": "MOCK"
+    },
+    "MethodResponses": [
+     {
+      "ResponseParameters": {
+       "method.response.header.Access-Control-Allow-Headers": true,
+       "method.response.header.Access-Control-Allow-Origin": true,
+       "method.response.header.Access-Control-Allow-Methods": true,
+       "method.response.header.Access-Control-Max-Age": true
+      },
+      "StatusCode": "204"
+     }
+    ],
+    "ResourceId": {
+     "Fn::GetAtt": [
+      "MediSupplyAPI7631659C",
+      "RootResourceId"
+     ]
+    },
+    "RestApiId": {
+     "Ref": "MediSupplyAPI7631659C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyAPI/Default/OPTIONS/Resource"
+   }
+  },
+  "MediSupplyUserPoolB73DA516": {
+   "Type": "AWS::Cognito::UserPool",
+   "Properties": {
+    "AccountRecoverySetting": {
+     "RecoveryMechanisms": [
+      {
+       "Name": "verified_phone_number",
+       "Priority": 1
+      },
+      {
+       "Name": "verified_email",
+       "Priority": 2
+      }
+     ]
+    },
+    "AdminCreateUserConfig": {
+     "AllowAdminCreateUserOnly": false
+    },
+    "AliasAttributes": [
+     "email"
+    ],
+    "AutoVerifiedAttributes": [
+     "email"
+    ],
+    "EmailVerificationMessage": "The verification code to your new account is {####}",
+    "EmailVerificationSubject": "Verify your new account",
+    "SmsVerificationMessage": "The verification code to your new account is {####}",
+    "VerificationMessageTemplate": {
+     "DefaultEmailOption": "CONFIRM_WITH_CODE",
+     "EmailMessage": "The verification code to your new account is {####}",
+     "EmailSubject": "Verify your new account",
+     "SmsMessage": "The verification code to your new account is {####}"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyUserPool/Resource"
+   }
+  },
+  "MediSupplyUserPoolClient87E2B9A7": {
+   "Type": "AWS::Cognito::UserPoolClient",
+   "Properties": {
+    "AllowedOAuthFlows": [
+     "implicit",
+     "code"
+    ],
+    "AllowedOAuthFlowsUserPoolClient": true,
+    "AllowedOAuthScopes": [
+     "profile",
+     "phone",
+     "email",
+     "openid",
+     "aws.cognito.signin.user.admin"
+    ],
+    "CallbackURLs": [
+     "https://example.com"
+    ],
+    "ExplicitAuthFlows": [
+     "ALLOW_USER_PASSWORD_AUTH",
+     "ALLOW_ADMIN_USER_PASSWORD_AUTH",
+     "ALLOW_USER_SRP_AUTH",
+     "ALLOW_REFRESH_TOKEN_AUTH"
+    ],
+    "GenerateSecret": false,
+    "SupportedIdentityProviders": [
+     "COGNITO"
+    ],
+    "UserPoolId": {
+     "Ref": "MediSupplyUserPoolB73DA516"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyUserPoolClient/Resource"
+   }
+  },
+  "AdminGroup": {
+   "Type": "AWS::Cognito::UserPoolGroup",
+   "Properties": {
+    "Description": "Administradores con acceso completo",
+    "GroupName": "admin",
+    "Precedence": 1,
+    "UserPoolId": {
+     "Ref": "MediSupplyUserPoolB73DA516"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/AdminGroup"
+   }
+  },
+  "ComprasGroup": {
+   "Type": "AWS::Cognito::UserPoolGroup",
+   "Properties": {
+    "Description": "Equipo de compras y proveedores",
+    "GroupName": "compras",
+    "Precedence": 10,
+    "UserPoolId": {
+     "Ref": "MediSupplyUserPoolB73DA516"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/ComprasGroup"
+   }
+  },
+  "LogisticaGroup": {
+   "Type": "AWS::Cognito::UserPoolGroup",
+   "Properties": {
+    "Description": "Equipo de logística e inventarios",
+    "GroupName": "logistica",
+    "Precedence": 20,
+    "UserPoolId": {
+     "Ref": "MediSupplyUserPoolB73DA516"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/LogisticaGroup"
+   }
+  },
+  "VentasGroup": {
+   "Type": "AWS::Cognito::UserPoolGroup",
+   "Properties": {
+    "Description": "Fuerza de ventas y comerciales",
+    "GroupName": "ventas",
+    "Precedence": 30,
+    "UserPoolId": {
+     "Ref": "MediSupplyUserPoolB73DA516"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/VentasGroup"
+   }
+  },
+  "MediSupplySecurityAuthorizerServiceRoleEC534531": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplySecurityAuthorizer/ServiceRole/Resource"
+   }
+  },
+  "MediSupplySecurityAuthorizerD79D1675": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-exp-assets-120569610818-us-east-1",
+     "S3Key": "fb3c0e4727f08eff8b48b0542b0146872c965f6f8620205c2be0cd65e4e4a5dd.zip"
+    },
+    "Handler": "authorizer.lambda_handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "MediSupplySecurityAuthorizerServiceRoleEC534531",
+      "Arn"
+     ]
+    },
+    "Runtime": "python3.9",
+    "Timeout": 30
+   },
+   "DependsOn": [
+    "MediSupplySecurityAuthorizerServiceRoleEC534531"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplySecurityAuthorizer/Resource",
+    "aws:asset:path": "asset.fb3c0e4727f08eff8b48b0542b0146872c965f6f8620205c2be0cd65e4e4a5dd",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "MediSupplySecurityAuthorizerLogGroupEA82B3CE": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "MediSupplySecurityAuthorizerD79D1675"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 731
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplySecurityAuthorizer/LogGroup/Resource"
+   }
+  },
+  "MediSupplySecurityAuthorizerMediSupplyStackMediSupplyLambdaAuthorizer5128BD4FPermissions45410320": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "MediSupplySecurityAuthorizerD79D1675",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:us-east-1:120569610818:",
+       {
+        "Ref": "MediSupplyAPI7631659C"
+       },
+       "/authorizers/",
+       {
+        "Ref": "MediSupplyLambdaAuthorizer5B42BB3D"
+       }
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplySecurityAuthorizer/MediSupplyStackMediSupplyLambdaAuthorizer5128BD4F:Permissions"
+   }
+  },
+  "MediSupplyLambdaAuthorizer5B42BB3D": {
+   "Type": "AWS::ApiGateway::Authorizer",
+   "Properties": {
+    "AuthorizerResultTtlInSeconds": 300,
+    "AuthorizerUri": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Fn::Select": [
+         1,
+         {
+          "Fn::Split": [
+           ":",
+           {
+            "Fn::GetAtt": [
+             "MediSupplySecurityAuthorizerD79D1675",
+             "Arn"
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       ":apigateway:",
+       {
+        "Fn::Select": [
+         3,
+         {
+          "Fn::Split": [
+           ":",
+           {
+            "Fn::GetAtt": [
+             "MediSupplySecurityAuthorizerD79D1675",
+             "Arn"
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       ":lambda:path/2015-03-31/functions/",
+       {
+        "Fn::GetAtt": [
+         "MediSupplySecurityAuthorizerD79D1675",
+         "Arn"
+        ]
+       },
+       "/invocations"
+      ]
+     ]
+    },
+    "IdentitySource": "method.request.header.Authorization",
+    "Name": "MediSupply-Security-Authorizer",
+    "RestApiId": {
+     "Ref": "MediSupplyAPI7631659C"
+    },
+    "Type": "REQUEST"
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyLambdaAuthorizer/Resource"
+   }
+  },
+  "ProductsServiceProductsServiceTaskRoleF8E433B4": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/ProductsService/ProductsServiceTaskRole/Resource"
+   }
+  },
+  "ProductsServiceProductsServiceLogGroup35371AE7": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": "/ecs/products-service",
+    "RetentionInDays": 7
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/ProductsService/ProductsServiceLogGroup/Resource"
+   }
+  },
+  "ProductsServiceProductsServiceTaskDefinition7112097E": {
+   "Type": "AWS::ECS::TaskDefinition",
+   "Properties": {
+    "ContainerDefinitions": [
+     {
+      "Environment": [
+       {
+        "Name": "SERVICE_NAME",
+        "Value": "products-service"
+       },
+       {
+        "Name": "LOG_LEVEL",
+        "Value": "INFO"
+       },
+       {
+        "Name": "DB_HOST",
+        "Value": {
+         "Fn::GetAtt": [
+          "MediSupplyCoreDB236BA066",
+          "Endpoint.Address"
+         ]
+        }
+       },
+       {
+        "Name": "DB_PORT",
+        "Value": "5432"
+       },
+       {
+        "Name": "CACHE_HOST",
+        "Value": {
+         "Fn::GetAtt": [
+          "MediSupplyCache",
+          "RedisEndpoint.Address"
+         ]
+        }
+       },
+       {
+        "Name": "CACHE_PORT",
+        "Value": {
+         "Fn::GetAtt": [
+          "MediSupplyCache",
+          "RedisEndpoint.Port"
+         ]
+        }
+       },
+       {
+        "Name": "CACHE_DB",
+        "Value": "0"
+       }
+      ],
+      "Essential": true,
+      "Image": {
+       "Fn::Sub": "120569610818.dkr.ecr.us-east-1.${AWS::URLSuffix}/cdk-exp-container-assets-120569610818-us-east-1:61ee05d4fb1f56792345d07bb3becc2ea6fb114583281bcb7e5aeba4a2575bee"
+      },
+      "LogConfiguration": {
+       "LogDriver": "awslogs",
+       "Options": {
+        "awslogs-group": {
+         "Ref": "ProductsServiceProductsServiceLogGroup35371AE7"
+        },
+        "awslogs-stream-prefix": "products-service",
+        "awslogs-region": "us-east-1"
+       }
+      },
+      "Name": "ProductsServiceContainer",
+      "PortMappings": [
+       {
+        "ContainerPort": 8080,
+        "Protocol": "tcp"
+       }
+      ]
+     }
+    ],
+    "Cpu": "256",
+    "ExecutionRoleArn": {
+     "Fn::GetAtt": [
+      "ProductsServiceProductsServiceTaskDefinitionExecutionRole265D6833",
+      "Arn"
+     ]
+    },
+    "Family": "MediSupplyStackProductsServiceProductsServiceTaskDefinitionE6D40B0B",
+    "Memory": "512",
+    "NetworkMode": "awsvpc",
+    "RequiresCompatibilities": [
+     "FARGATE"
+    ],
+    "TaskRoleArn": {
+     "Fn::GetAtt": [
+      "ProductsServiceProductsServiceTaskRoleF8E433B4",
+      "Arn"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/ProductsService/ProductsServiceTaskDefinition/Resource"
+   }
+  },
+  "ProductsServiceProductsServiceTaskDefinitionExecutionRole265D6833": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/ProductsService/ProductsServiceTaskDefinition/ExecutionRole/Resource"
+   }
+  },
+  "ProductsServiceProductsServiceTaskDefinitionExecutionRoleDefaultPolicyAFF2E775": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:BatchGetImage",
+        "ecr:GetDownloadUrlForLayer"
+       ],
+       "Effect": "Allow",
+       "Resource": "arn:aws:ecr:us-east-1:120569610818:repository/cdk-exp-container-assets-120569610818-us-east-1"
+      },
+      {
+       "Action": "ecr:GetAuthorizationToken",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "ProductsServiceProductsServiceLogGroup35371AE7",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "ProductsServiceProductsServiceTaskDefinitionExecutionRoleDefaultPolicyAFF2E775",
+    "Roles": [
+     {
+      "Ref": "ProductsServiceProductsServiceTaskDefinitionExecutionRole265D6833"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/ProductsService/ProductsServiceTaskDefinition/ExecutionRole/DefaultPolicy/Resource"
+   }
+  },
+  "ProductsServiceProductsServiceTargetGroup77004340": {
+   "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+   "Properties": {
+    "HealthCheckEnabled": true,
+    "HealthCheckPath": "/health",
+    "HealthCheckPort": "8080",
+    "HealthCheckProtocol": "HTTP",
+    "Matcher": {
+     "HttpCode": "200"
+    },
+    "Port": 8080,
+    "Protocol": "HTTP",
+    "TargetGroupAttributes": [
+     {
+      "Key": "stickiness.enabled",
+      "Value": "false"
+     }
+    ],
+    "TargetType": "ip",
+    "VpcId": {
+     "Ref": "MediSupplyVpcBF56B557"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/ProductsService/ProductsServiceTargetGroup/Resource"
+   }
+  },
+  "ProductsService740A68BF": {
+   "Type": "AWS::ECS::Service",
+   "Properties": {
+    "Cluster": {
+     "Ref": "MediSupplyCluster1AF6A595"
+    },
+    "DeploymentConfiguration": {
+     "MaximumPercent": 200,
+     "MinimumHealthyPercent": 50
+    },
+    "DesiredCount": 1,
+    "EnableECSManagedTags": false,
+    "HealthCheckGracePeriodSeconds": 60,
+    "LaunchType": "FARGATE",
+    "LoadBalancers": [
+     {
+      "ContainerName": "ProductsServiceContainer",
+      "ContainerPort": 8080,
+      "TargetGroupArn": {
+       "Ref": "ProductsServiceProductsServiceTargetGroup77004340"
+      }
+     }
+    ],
+    "NetworkConfiguration": {
+     "AwsvpcConfiguration": {
+      "AssignPublicIp": "DISABLED",
+      "SecurityGroups": [
+       {
+        "Fn::GetAtt": [
+         "ProductsServiceSecurityGroupBAD7D708",
+         "GroupId"
+        ]
+       }
+      ],
+      "Subnets": [
+       {
+        "Ref": "MediSupplyVpcPrivateSubnet1SubnetA3875FD3"
+       },
+       {
+        "Ref": "MediSupplyVpcPrivateSubnet2SubnetD164FF44"
+       }
+      ]
+     }
+    },
+    "TaskDefinition": {
+     "Ref": "ProductsServiceProductsServiceTaskDefinition7112097E"
+    }
+   },
+   "DependsOn": [
+    "MediSupplyALBMediSupplyALBListenerProductsServiceTargetGroupRule5EF88493",
+    "ProductsServiceProductsServiceTaskRoleF8E433B4"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/ProductsService/ProductsService/Service"
+   }
+  },
+  "ProductsServiceSecurityGroupBAD7D708": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "MediSupplyStack/ProductsService/ProductsService/SecurityGroup",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "MediSupplyVpcBF56B557"
+    }
+   },
+   "DependsOn": [
+    "ProductsServiceProductsServiceTaskRoleF8E433B4"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/ProductsService/ProductsService/SecurityGroup/Resource"
+   }
+  },
+  "ProductsServiceSecurityGroupfromMediSupplyStackMediSupplyALBSecurityGroupAB0E38A18080DD8E1E6F": {
+   "Type": "AWS::EC2::SecurityGroupIngress",
+   "Properties": {
+    "Description": "Allow inbound traffic from ALB",
+    "FromPort": 8080,
+    "GroupId": {
+     "Fn::GetAtt": [
+      "ProductsServiceSecurityGroupBAD7D708",
+      "GroupId"
+     ]
+    },
+    "IpProtocol": "tcp",
+    "SourceSecurityGroupId": {
+     "Fn::GetAtt": [
+      "MediSupplyALBSecurityGroup87FA9F68",
+      "GroupId"
+     ]
+    },
+    "ToPort": 8080
+   },
+   "DependsOn": [
+    "ProductsServiceProductsServiceTaskRoleF8E433B4"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/ProductsService/ProductsService/SecurityGroup/from MediSupplyStackMediSupplyALBSecurityGroupAB0E38A1:8080"
+   }
+  },
+  "ProductsServiceRedisSecurityGroupfromMediSupplyStackProductsServiceSecurityGroupBE11F2196379AD6B1401": {
+   "Type": "AWS::EC2::SecurityGroupIngress",
+   "Properties": {
+    "Description": "Allow Fargate service to connect to Redis",
+    "FromPort": 6379,
+    "GroupId": {
+     "Fn::GetAtt": [
+      "RedisSecurityGroupB05951F6",
+      "GroupId"
+     ]
+    },
+    "IpProtocol": "tcp",
+    "SourceSecurityGroupId": {
+     "Fn::GetAtt": [
+      "ProductsServiceSecurityGroupBAD7D708",
+      "GroupId"
+     ]
+    },
+    "ToPort": 6379
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/ProductsService/RedisSecurityGroup/from MediSupplyStackProductsServiceSecurityGroupBE11F219:6379"
+   }
+  },
+  "UsersServiceUsersServiceTaskRole3C0D5C56": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/UsersService/UsersServiceTaskRole/Resource"
+   }
+  },
+  "UsersServiceUsersServiceLogGroup889D07A2": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": "/ecs/users-service",
+    "RetentionInDays": 7
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/UsersService/UsersServiceLogGroup/Resource"
+   }
+  },
+  "UsersServiceUsersServiceTaskDefinitionCE786982": {
+   "Type": "AWS::ECS::TaskDefinition",
+   "Properties": {
+    "ContainerDefinitions": [
+     {
+      "Environment": [
+       {
+        "Name": "SERVICE_NAME",
+        "Value": "users-service"
+       },
+       {
+        "Name": "LOG_LEVEL",
+        "Value": "INFO"
+       },
+       {
+        "Name": "DB_HOST",
+        "Value": {
+         "Fn::GetAtt": [
+          "MediSupplyCoreDB236BA066",
+          "Endpoint.Address"
+         ]
+        }
+       },
+       {
+        "Name": "DB_PORT",
+        "Value": "5432"
+       }
+      ],
+      "Essential": true,
+      "Image": {
+       "Fn::Sub": "120569610818.dkr.ecr.us-east-1.${AWS::URLSuffix}/cdk-exp-container-assets-120569610818-us-east-1:14a73f17dc2c9750e1078618a7e3c40925b61564674ee9a80e9bb9606ed9fec8"
+      },
+      "LogConfiguration": {
+       "LogDriver": "awslogs",
+       "Options": {
+        "awslogs-group": {
+         "Ref": "UsersServiceUsersServiceLogGroup889D07A2"
+        },
+        "awslogs-stream-prefix": "users-service",
+        "awslogs-region": "us-east-1"
+       }
+      },
+      "Name": "UsersServiceContainer",
+      "PortMappings": [
+       {
+        "ContainerPort": 8080,
+        "Protocol": "tcp"
+       }
+      ]
+     }
+    ],
+    "Cpu": "256",
+    "ExecutionRoleArn": {
+     "Fn::GetAtt": [
+      "UsersServiceUsersServiceTaskDefinitionExecutionRole5D64394D",
+      "Arn"
+     ]
+    },
+    "Family": "MediSupplyStackUsersServiceUsersServiceTaskDefinition69CFD371",
+    "Memory": "512",
+    "NetworkMode": "awsvpc",
+    "RequiresCompatibilities": [
+     "FARGATE"
+    ],
+    "TaskRoleArn": {
+     "Fn::GetAtt": [
+      "UsersServiceUsersServiceTaskRole3C0D5C56",
+      "Arn"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/UsersService/UsersServiceTaskDefinition/Resource"
+   }
+  },
+  "UsersServiceUsersServiceTaskDefinitionExecutionRole5D64394D": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/UsersService/UsersServiceTaskDefinition/ExecutionRole/Resource"
+   }
+  },
+  "UsersServiceUsersServiceTaskDefinitionExecutionRoleDefaultPolicy3978410B": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:BatchGetImage",
+        "ecr:GetDownloadUrlForLayer"
+       ],
+       "Effect": "Allow",
+       "Resource": "arn:aws:ecr:us-east-1:120569610818:repository/cdk-exp-container-assets-120569610818-us-east-1"
+      },
+      {
+       "Action": "ecr:GetAuthorizationToken",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "UsersServiceUsersServiceLogGroup889D07A2",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "UsersServiceUsersServiceTaskDefinitionExecutionRoleDefaultPolicy3978410B",
+    "Roles": [
+     {
+      "Ref": "UsersServiceUsersServiceTaskDefinitionExecutionRole5D64394D"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/UsersService/UsersServiceTaskDefinition/ExecutionRole/DefaultPolicy/Resource"
+   }
+  },
+  "UsersServiceUsersServiceTargetGroupA4D387F1": {
+   "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+   "Properties": {
+    "HealthCheckEnabled": true,
+    "HealthCheckPath": "/health",
+    "HealthCheckPort": "8080",
+    "HealthCheckProtocol": "HTTP",
+    "Matcher": {
+     "HttpCode": "200"
+    },
+    "Port": 8080,
+    "Protocol": "HTTP",
+    "TargetGroupAttributes": [
+     {
+      "Key": "stickiness.enabled",
+      "Value": "false"
+     }
+    ],
+    "TargetType": "ip",
+    "VpcId": {
+     "Ref": "MediSupplyVpcBF56B557"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/UsersService/UsersServiceTargetGroup/Resource"
+   }
+  },
+  "UsersService27EC9958": {
+   "Type": "AWS::ECS::Service",
+   "Properties": {
+    "Cluster": {
+     "Ref": "MediSupplyCluster1AF6A595"
+    },
+    "DeploymentConfiguration": {
+     "MaximumPercent": 200,
+     "MinimumHealthyPercent": 50
+    },
+    "DesiredCount": 1,
+    "EnableECSManagedTags": false,
+    "HealthCheckGracePeriodSeconds": 60,
+    "LaunchType": "FARGATE",
+    "LoadBalancers": [
+     {
+      "ContainerName": "UsersServiceContainer",
+      "ContainerPort": 8080,
+      "TargetGroupArn": {
+       "Ref": "UsersServiceUsersServiceTargetGroupA4D387F1"
+      }
+     }
+    ],
+    "NetworkConfiguration": {
+     "AwsvpcConfiguration": {
+      "AssignPublicIp": "DISABLED",
+      "SecurityGroups": [
+       {
+        "Fn::GetAtt": [
+         "UsersServiceSecurityGroupFBC277E6",
+         "GroupId"
+        ]
+       }
+      ],
+      "Subnets": [
+       {
+        "Ref": "MediSupplyVpcPrivateSubnet1SubnetA3875FD3"
+       },
+       {
+        "Ref": "MediSupplyVpcPrivateSubnet2SubnetD164FF44"
+       }
+      ]
+     }
+    },
+    "TaskDefinition": {
+     "Ref": "UsersServiceUsersServiceTaskDefinitionCE786982"
+    }
+   },
+   "DependsOn": [
+    "MediSupplyALBMediSupplyALBListenerUsersServiceTargetGroupRule992F0C05",
+    "UsersServiceUsersServiceTaskRole3C0D5C56"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/UsersService/UsersService/Service"
+   }
+  },
+  "UsersServiceSecurityGroupFBC277E6": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "MediSupplyStack/UsersService/UsersService/SecurityGroup",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "MediSupplyVpcBF56B557"
+    }
+   },
+   "DependsOn": [
+    "UsersServiceUsersServiceTaskRole3C0D5C56"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/UsersService/UsersService/SecurityGroup/Resource"
+   }
+  },
+  "UsersServiceSecurityGroupfromMediSupplyStackMediSupplyALBSecurityGroupAB0E38A180802C856D76": {
+   "Type": "AWS::EC2::SecurityGroupIngress",
+   "Properties": {
+    "Description": "Load balancer to target",
+    "FromPort": 8080,
+    "GroupId": {
+     "Fn::GetAtt": [
+      "UsersServiceSecurityGroupFBC277E6",
+      "GroupId"
+     ]
+    },
+    "IpProtocol": "tcp",
+    "SourceSecurityGroupId": {
+     "Fn::GetAtt": [
+      "MediSupplyALBSecurityGroup87FA9F68",
+      "GroupId"
+     ]
+    },
+    "ToPort": 8080
+   },
+   "DependsOn": [
+    "UsersServiceUsersServiceTaskRole3C0D5C56"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/UsersService/UsersService/SecurityGroup/from MediSupplyStackMediSupplyALBSecurityGroupAB0E38A1:8080"
+   }
+  },
+  "MediSupplyFrontendBucket0D9602A7": {
+   "Type": "AWS::S3::Bucket",
+   "Properties": {
+    "BucketName": "medisupply-frontend-120569610818-us-east-1",
+    "PublicAccessBlockConfiguration": {
+     "BlockPublicAcls": false,
+     "BlockPublicPolicy": false,
+     "IgnorePublicAcls": false,
+     "RestrictPublicBuckets": false
+    },
+    "Tags": [
+     {
+      "Key": "aws-cdk:auto-delete-objects",
+      "Value": "true"
+     }
+    ],
+    "WebsiteConfiguration": {
+     "ErrorDocument": "error.html",
+     "IndexDocument": "index.html"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyFrontendBucket/Resource"
+   }
+  },
+  "MediSupplyFrontendBucketPolicy83DB60F0": {
+   "Type": "AWS::S3::BucketPolicy",
+   "Properties": {
+    "Bucket": {
+     "Ref": "MediSupplyFrontendBucket0D9602A7"
+    },
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "s3:GetObject",
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": "*"
+       },
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          {
+           "Fn::GetAtt": [
+            "MediSupplyFrontendBucket0D9602A7",
+            "Arn"
+           ]
+          },
+          "/*"
+         ]
+        ]
+       }
+      },
+      {
+       "Action": [
+        "s3:DeleteObject*",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:PutBucketPolicy"
+       ],
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::GetAtt": [
+          "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+          "Arn"
+         ]
+        }
+       },
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "MediSupplyFrontendBucket0D9602A7",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "MediSupplyFrontendBucket0D9602A7",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyFrontendBucket/Policy/Resource"
+   }
+  },
+  "MediSupplyFrontendBucketAutoDeleteObjectsCustomResourceC3BF41ED": {
+   "Type": "Custom::S3AutoDeleteObjects",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F",
+      "Arn"
+     ]
+    },
+    "BucketName": {
+     "Ref": "MediSupplyFrontendBucket0D9602A7"
+    }
+   },
+   "DependsOn": [
+    "MediSupplyFrontendBucketPolicy83DB60F0"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyFrontendBucket/AutoDeleteObjectsCustomResource/Default"
+   }
+  },
+  "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Version": "2012-10-17",
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ]
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role"
+   }
+  },
+  "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-exp-assets-120569610818-us-east-1",
+     "S3Key": "faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6.zip"
+    },
+    "Timeout": 900,
+    "MemorySize": 128,
+    "Handler": "index.handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs22.x",
+    "Description": {
+     "Fn::Join": [
+      "",
+      [
+       "Lambda function for auto-deleting objects in ",
+       {
+        "Ref": "MediSupplyFrontendBucket0D9602A7"
+       },
+       " S3 bucket."
+      ]
+     ]
+    }
+   },
+   "DependsOn": [
+    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler",
+    "aws:asset:path": "asset.faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6",
+    "aws:asset:property": "Code"
+   }
+  },
+  "MediSupplyFrontendDistributionF353AB1A": {
+   "Type": "AWS::CloudFront::Distribution",
+   "Properties": {
+    "DistributionConfig": {
+     "CustomErrorResponses": [
+      {
+       "ErrorCode": 404,
+       "ResponseCode": 200,
+       "ResponsePagePath": "/index.html"
+      }
+     ],
+     "DefaultCacheBehavior": {
+      "CachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
+      "Compress": true,
+      "TargetOriginId": "MediSupplyStackMediSupplyFrontendDistributionOrigin1A3E87622",
+      "ViewerProtocolPolicy": "redirect-to-https"
+     },
+     "DefaultRootObject": "index.html",
+     "Enabled": true,
+     "HttpVersion": "http2",
+     "IPV6Enabled": true,
+     "Origins": [
+      {
+       "CustomOriginConfig": {
+        "OriginProtocolPolicy": "http-only",
+        "OriginSSLProtocols": [
+         "TLSv1.2"
+        ]
+       },
+       "DomainName": {
+        "Fn::Select": [
+         2,
+         {
+          "Fn::Split": [
+           "/",
+           {
+            "Fn::GetAtt": [
+             "MediSupplyFrontendBucket0D9602A7",
+             "WebsiteURL"
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       "Id": "MediSupplyStackMediSupplyFrontendDistributionOrigin1A3E87622"
+      }
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/MediSupplyFrontendDistribution/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/+0ZXW/bNvC3TI8Do60NsAF5c5y2M9Yuhp31YUZQnMmLzIYiNX449QT994Ffkhy7aYptWNb1IbB4dzzeF++Ol+fl82en5fffwJ05oez2RPB12S4t0FsCd+Zdi/R52b5t6KotKGe6OCu+LUhRw4fJHyYtJNhXYPEOdhli3FqinSp5wyunwXIli7NVW0iocY/katd4wNytBacFCUe8AXMbiDrywA7Nt2DxYMt1d02mN/LtfEoi02XYtWoL2AIXsOaC291vSmau24bOWPr2rM6Fore9lk1kMmsu5Wtwkm6KM6sdkoI32x+m98jBGF7JWbP9YcKYRmMu5VRj0j7p8ySkCIIw9kvvt+JsVXxbXD8ZAZ+GFDGUYgD5r4VyFq9gLXCAD7CJMYrywKAn9h8vZnP/MxibpNj92yPzBoR5Ajb/a2I8HUmeiBgxCmfSopbYx1DMcWk1sRbopkZpyRKp09zuXmnlmlXrhU1HMTRU86ZnTQoQQt1NhLh0dq2cZEnSlB1msvICLZzAkLspyJkUXGKExJtFlZRIPc+c+p3kvztMBgr+9ODA+DpxfjFm7LGJyLN8NM2hOlnVT2MHoxyaIOp1f/9411H7jETsM+kDNIM9Hss17YgpaezkA0A03QE4ce4IUlO2U+GMRe39Gr9+GQptL1I4LFGSl6Ar8LnO3F7gDZfcG2eVFH7sX+C4z4JMlbTAJeoRLB22RL3lFFfj3QnWERRgLKdCAVuDAEm5rLbPy3bSNILTcIdeK2DnAYd6j8kYQcYbuLEoB+ID2TPBsU3eaWOasB7RXYGu0PZOGy07opkp2wuwsAaDM2msF+3e/RVoceKsqsEiOwd66xozBKxAf8ZcKxsvZJ93NNZqC2KuBKe74szHttVqFx0di5Apztrj/VVHCpQV98mvTV+JIrRkXFYCfzWoF8oGHUfqJpq46S1qE2BtceOE6Jcpa75XegzqSNGAhhot6mCgl1BzsdvjuAdieANOWC9J3zF28XpTb62lVRqqLDZP9u012U8KXy39D1r6mkRD5AL18Uz9WKvdt/qnKsBf4BtSwMX5SAOS7+wSqQ7dHEqqd+HcnzEbzQTkKMVqDM5bYNWXTi+0G1v1yLZjvPEDFY7hdAMaqEVtRkcAxUs5B2PulGZTzS1qDtMNyArNw5J8AVokZ+Vk2pEoiKlBQoW6bGOF1Bi6Jo02JuShmVq1SfZ0iA34Xs2P4nKNPsKyr1pANxglGMWSr7YekUpuR6DhVWzxynaBxk4afvTK6IjrbRxFSDvIBTZC7ZJGR9rAhvdsfCEeyAeXAmNX6rWqOAXhe7tV211/hX8h8HhReq+TpYUKQ6hk0DiuPZIs0CinKZ6DCd3ZdQ9Ztb6g5D2+utjNHPRwbR7A5qgNjMgbtBvFVq2P7gBJezbWNhHXFxmLlR5XQtWkJ0lbgLMbpfkfGEdXnRfhK8PPY1gHygWaRknjc67PjBasM1PFhmIQ0fPcTuQ03KXAe7PH5XOZPDmj/M8Zjlf9OCSD4nNn6K59jfkZdwv83XGNrG+Yj9OTJxFwIRlFFsQL7otpr/EqvwcHUEeoqiS3qmx9czxXSoQGQtwseSV/bV5IPyXsJwxh7iMngkNQsC2wBi4ydmih/LqLwmS2JH9MBY9F3dvxpVB30Uus5pE2tUxjpsdgS92kc0hR+YdreHnH5iY5yqUTR3l6X4gxJD1pBdRrBmX70snwTFq1heU1KpeTPx3csAHJBOb/LmgnPeXosMzDf89R19z4F0xHONRlu1DClx0wxtXIznfeCI3mkvIGxIRS5fp6E2n8hgkdDXeK2BOy0OvzFHBj2G6i5SgT/UeO0krg0BPm8j/PTPLLpm8OQpsah3w9rp9mPYh8mO/D2K+2/HtsGbsnJZBEcJwepsOulMccyHAIZmxpwWJq/0fHPhr87xwbtI+Kd8ScvgNj0Jpy4n+IOS3bc0dv0YaG9ZrERcyc6iLMey7X75Hafsyz9lP6OMufUIomvzTXYefoNdsEmgUCy3SRwceHQXe4NtziC62VvlDU1UM/nFAzyfDDHirqF8VO0icvt0mkA7JsDKEqU7avVZVHLiJ97oXzATA8B1HGO/DjY0jSZLVK+R+pzl64UPQW9ayGCqNDkOpygY0y3Cq9S06hQjl2o5W0ZXvBjdV87VLhSFOnc9zAlqvQfoQndLbu3rL/50NBVd3okU+2HO9Q+8mdompwjUbGNVJ7YtWJ74iMb3s0r3h/+9P5C6VsjJM8tvA+3O9TPINlaDPutRg/fQwxhwrnYDd7ncfYAF03PK+OD6adsaq+T7P/nNqnmWu15Qy1Nz0JPvEPOy4rv+fS2cbZjsx3dqPkd6fls9Pyx2/eG85PUmkuF/H3T+oZBFY+IAAA"
+   },
+   "Metadata": {
+    "aws:cdk:path": "MediSupplyStack/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "MediSupplyAPIEndpoint3CE8E797": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "https://",
+      {
+       "Ref": "MediSupplyAPI7631659C"
+      },
+      ".execute-api.us-east-1.",
+      {
+       "Ref": "AWS::URLSuffix"
+      },
+      "/",
+      {
+       "Ref": "MediSupplyAPIDeploymentStageprod05B38190"
+      },
+      "/"
+     ]
+    ]
+   }
+  },
+  "FrontendBucketName": {
+   "Description": "Nombre del bucket S3 para el frontend",
+   "Value": {
+    "Ref": "MediSupplyFrontendBucket0D9602A7"
+   }
+  },
+  "FrontendDistributionDomain": {
+   "Description": "Dominio de CloudFront para el frontend",
+   "Value": {
+    "Fn::GetAtt": [
+     "MediSupplyFrontendDistributionF353AB1A",
+     "DomainName"
+    ]
+   }
+  },
+  "FrontendURL": {
+   "Description": "URL del frontend",
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "https://",
+      {
+       "Fn::GetAtt": [
+        "MediSupplyFrontendDistributionF353AB1A",
+        "DomainName"
+       ]
+      }
+     ]
+    ]
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/exp/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}
