@@ -10,6 +10,9 @@ from aws_cdk import (
     aws_elasticloadbalancingv2 as elbv2,
     aws_iam as iam,
     aws_logs as logs,
+    aws_s3 as s3,
+    aws_cloudfront as cloudfront,
+    aws_cloudfront_origins as origins,
     Duration,
     RemovalPolicy
 )
@@ -37,6 +40,12 @@ class MediSupplyStack(Stack):
 
         # Configurar api
         self._configure_api()
+        
+        # Configurar CORS universal (una sola vez)
+        self._enable_universal_cors()
+        
+        # Crear frontend
+        self._create_frontend()
 
     def _create_infrastructure(self):
         """Crear infraestructura base necesaria"""
@@ -296,35 +305,196 @@ class MediSupplyStack(Stack):
 
 
     def _configure_offer_manager(self):
+        """Configurar endpoint de ofertas"""
         # Endpoint para Offer Manager Service
         offer_manager_resource = self.api.root.add_resource("offers")
+        
+        # Configurar métodos HTTP simples (CORS se maneja universalmente)
+        offer_manager_resource.add_method("GET", apigateway.HttpIntegration(f"http://{self.alb.load_balancer_dns_name}/offers"), authorizer=self.cognito_authorizer)
+        offer_manager_resource.add_method("POST", apigateway.HttpIntegration(f"http://{self.alb.load_balancer_dns_name}/offers", http_method="POST"), authorizer=self.cognito_authorizer)
+        offer_manager_resource.add_method("PUT", apigateway.HttpIntegration(f"http://{self.alb.load_balancer_dns_name}/offers", http_method="PUT"), authorizer=self.cognito_authorizer)
+        offer_manager_resource.add_method("DELETE", apigateway.HttpIntegration(f"http://{self.alb.load_balancer_dns_name}/offers", http_method="DELETE"), authorizer=self.cognito_authorizer)
 
     def _configure_orders(self):
-        # Endpoint para Offer Manager Service
+        """Configurar endpoint de órdenes"""
+        # Endpoint para Orders Service
         orders_resource = self.api.root.add_resource("orders")
+        
+        # Configurar métodos HTTP simples (CORS se maneja universalmente)
+        orders_resource.add_method("GET", apigateway.HttpIntegration(f"http://{self.alb.load_balancer_dns_name}/orders"), authorizer=self.cognito_authorizer)
+        orders_resource.add_method("POST", apigateway.HttpIntegration(f"http://{self.alb.load_balancer_dns_name}/orders", http_method="POST"), authorizer=self.cognito_authorizer)
+        orders_resource.add_method("PUT", apigateway.HttpIntegration(f"http://{self.alb.load_balancer_dns_name}/orders", http_method="PUT"), authorizer=self.cognito_authorizer)
+        orders_resource.add_method("DELETE", apigateway.HttpIntegration(f"http://{self.alb.load_balancer_dns_name}/orders", http_method="DELETE"), authorizer=self.cognito_authorizer)
 
     def _configure_products(self):
         """Configurar experimento de latencia"""
 
         # Endpoint para Products Service
         products_resource = self.api.root.add_resource("products")
-        products_resource.add_method(
-            "GET",
-            apigateway.HttpIntegration(
-                f"http://{self.alb.load_balancer_dns_name}/products/available",
-                http_method="GET"
-            ),
-            authorizer=self.cognito_authorizer
-        )
+        
+        # Configurar métodos HTTP simples (CORS se configurará después del despliegue)
+        products_resource.add_method("GET", apigateway.HttpIntegration(f"http://{self.alb.load_balancer_dns_name}/products/available"), authorizer=self.cognito_authorizer)
+        
+        # Otros métodos simples
+        products_resource.add_method("POST", apigateway.HttpIntegration(f"http://{self.alb.load_balancer_dns_name}/products/available", http_method="POST"), authorizer=self.cognito_authorizer)
+        products_resource.add_method("PUT", apigateway.HttpIntegration(f"http://{self.alb.load_balancer_dns_name}/products/available", http_method="PUT"), authorizer=self.cognito_authorizer)
+        products_resource.add_method("DELETE", apigateway.HttpIntegration(f"http://{self.alb.load_balancer_dns_name}/products/available", http_method="DELETE"), authorizer=self.cognito_authorizer)
 
     def _configure_reports(self):
-        # Endpoint para Offer Manager Service
+        """Configurar endpoint de reportes"""
+        # Endpoint para Reports Service
         reports_resource = self.api.root.add_resource("reports")
+        
+        # Configurar métodos HTTP simples (CORS se maneja universalmente)
+        reports_resource.add_method("GET", apigateway.HttpIntegration(f"http://{self.alb.load_balancer_dns_name}/reports"), authorizer=self.cognito_authorizer)
+        reports_resource.add_method("POST", apigateway.HttpIntegration(f"http://{self.alb.load_balancer_dns_name}/reports", http_method="POST"), authorizer=self.cognito_authorizer)
+
+
+    def _enable_universal_cors(self):
+        """
+        Configuración CORS universal - una sola vez para todo el API Gateway
+        Más simple, flexible y sin redundancia
+        """
+        
+        # Configurar CORS en el recurso raíz - se aplica a TODOS los recursos automáticamente
+        self.api.root.add_cors_preflight(
+            allow_origins=["*"],  # Cualquier origen (localhost, CloudFront, etc.)
+            allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"],
+            allow_headers=["Content-Type", "Authorization", "X-Amz-Date", "X-Api-Key", "X-Amz-Security-Token", "X-Requested-With", "Accept", "Origin"],
+            allow_credentials=False,
+            max_age=Duration.days(1)  # Cache por 24 horas
+        )
+        
+        # Configurar CORS para respuestas de error también
+        self._configure_cors_for_all_resources()
+
+    def _configure_cors_for_all_resources(self):
+        """
+        Configura CORS para todas las respuestas (incluyendo errores)
+        """
+        # Configurar CORS para el recurso raíz
+        self._add_cors_to_resource(self.api.root)
+        
+        # Configurar CORS para todos los recursos existentes
+        for resource in [self.api.root.get_resource("products"), 
+                        self.api.root.get_resource("users"), 
+                        self.api.root.get_resource("reports"),
+                        self.api.root.get_resource("routes")]:
+            if resource:
+                self._add_cors_to_resource(resource)
+
+    def _add_cors_to_resource(self, resource):
+        """
+        Agrega headers CORS a un recurso específico
+        """
+        # Configurar MethodResponse con headers CORS
+        for method in ["GET", "POST", "PUT", "DELETE"]:
+            try:
+                method_obj = resource.get_method(method)
+                if method_obj:
+                    # Agregar headers CORS a MethodResponse
+                    method_obj.add_method_response(
+                        status_code="200",
+                        response_parameters={
+                            "method.response.header.Access-Control-Allow-Origin": True,
+                            "method.response.header.Access-Control-Allow-Headers": True,
+                            "method.response.header.Access-Control-Allow-Methods": True
+                        }
+                    )
+                    
+                    # Agregar headers CORS a IntegrationResponse
+                    integration = method_obj.integration
+                    if integration:
+                        integration.add_integration_response(
+                            status_code="200",
+                            response_parameters={
+                                "method.response.header.Access-Control-Allow-Origin": "'*'",
+                                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token,X-Requested-With,Accept,Origin'",
+                                "method.response.header.Access-Control-Allow-Methods": "'GET,POST,PUT,DELETE,OPTIONS'"
+                            }
+                        )
+            except Exception as e:
+                # Ignorar errores si el método no existe
+                pass
 
     def _configure_routes(self):
-        # Endpoint para Offer Manager Service
+        """Configurar endpoint de rutas"""
+        # Endpoint para Routes Service
         routes_resource = self.api.root.add_resource("routes")
+        
+        # Configurar métodos HTTP simples (CORS se maneja universalmente)
+        routes_resource.add_method("GET", apigateway.HttpIntegration(f"http://{self.alb.load_balancer_dns_name}/routes"), authorizer=self.cognito_authorizer)
+        routes_resource.add_method("POST", apigateway.HttpIntegration(f"http://{self.alb.load_balancer_dns_name}/routes", http_method="POST"), authorizer=self.cognito_authorizer)
+        routes_resource.add_method("PUT", apigateway.HttpIntegration(f"http://{self.alb.load_balancer_dns_name}/routes", http_method="PUT"), authorizer=self.cognito_authorizer)
 
     def _configure_users(self):
-        # Endpoint para Offer Manager Service
+        """Configurar endpoint de usuarios"""
+        # Endpoint para Users Service
         users_resource = self.api.root.add_resource("users")
+        
+        # Configurar métodos HTTP simples (CORS se maneja universalmente)
+        users_resource.add_method("GET", apigateway.HttpIntegration(f"http://{self.alb.load_balancer_dns_name}/users"), authorizer=self.cognito_authorizer)
+        users_resource.add_method("POST", apigateway.HttpIntegration(f"http://{self.alb.load_balancer_dns_name}/users", http_method="POST"), authorizer=self.cognito_authorizer)
+        users_resource.add_method("PUT", apigateway.HttpIntegration(f"http://{self.alb.load_balancer_dns_name}/users", http_method="PUT"), authorizer=self.cognito_authorizer)
+        users_resource.add_method("DELETE", apigateway.HttpIntegration(f"http://{self.alb.load_balancer_dns_name}/users", http_method="DELETE"), authorizer=self.cognito_authorizer)
+
+    def _create_frontend(self):
+        """Crear frontend con S3 + CloudFront"""
+        
+        # Bucket S3 para hosting estático
+        self.frontend_bucket = s3.Bucket(
+            self, "MediSupplyFrontendBucket",
+            bucket_name=f"medisupply-frontend-{self.account}-{self.region}",
+            website_index_document="index.html",
+            website_error_document="error.html",
+            public_read_access=True,
+            block_public_access=s3.BlockPublicAccess(
+                block_public_acls=False,
+                block_public_policy=False,
+                ignore_public_acls=False,
+                restrict_public_buckets=False
+            ),
+            removal_policy=RemovalPolicy.DESTROY,
+            auto_delete_objects=True
+        )
+        
+        # CloudFront Distribution para el frontend
+        self.frontend_distribution = cloudfront.Distribution(
+            self, "MediSupplyFrontendDistribution",
+            default_behavior=cloudfront.BehaviorOptions(
+                origin=origins.S3StaticWebsiteOrigin(self.frontend_bucket),
+                viewer_protocol_policy=cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+                cache_policy=cloudfront.CachePolicy.CACHING_OPTIMIZED,
+                compress=True
+            ),
+            default_root_object="index.html",
+            error_responses=[
+                cloudfront.ErrorResponse(
+                    http_status=404,
+                    response_http_status=200,
+                    response_page_path="/index.html"
+                )
+            ]
+        )
+        
+        # CORS ya configurado universalmente en _enable_universal_cors()
+        
+        # Outputs
+        from aws_cdk import CfnOutput
+        CfnOutput(
+            self, "FrontendBucketName",
+            value=self.frontend_bucket.bucket_name,
+            description="Nombre del bucket S3 para el frontend"
+        )
+        
+        CfnOutput(
+            self, "FrontendDistributionDomain",
+            value=self.frontend_distribution.distribution_domain_name,
+            description="Dominio de CloudFront para el frontend"
+        )
+        
+        CfnOutput(
+            self, "FrontendURL",
+            value=f"https://{self.frontend_distribution.distribution_domain_name}",
+            description="URL del frontend"
+        )
