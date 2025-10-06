@@ -24,12 +24,7 @@ def lambda_handler(event, context):
         http_method = event.get('httpMethod', '')
         logger.info(f"Processing {http_method} request")
         
-        # 2. Permitir peticiones OPTIONS (CORS preflight) sin autenticación
-        if http_method == 'OPTIONS':
-            logger.info("Allowing OPTIONS request for CORS preflight")
-            return generate_policy_with_cors('cors-preflight', 'Allow', event['methodArn'])
-        
-        # 3. Obtener token del header Authorization (compatible con TOKEN y REQUEST authorizer)
+        # 2. Obtener token del header Authorization (compatible con TOKEN y REQUEST authorizer)
         if event.get('type') == 'TOKEN':
             # Formato TOKEN authorizer
             token = event.get('authorizationToken', '')

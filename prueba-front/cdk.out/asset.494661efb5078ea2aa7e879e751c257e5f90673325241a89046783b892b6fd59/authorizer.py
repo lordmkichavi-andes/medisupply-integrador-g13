@@ -20,16 +20,7 @@ def lambda_handler(event, context):
     try:
         logger.info(f"Authorization request received: {event}")
         
-        # 1. Obtener método HTTP para logging
-        http_method = event.get('httpMethod', '')
-        logger.info(f"Processing {http_method} request")
-        
-        # 2. Permitir peticiones OPTIONS (CORS preflight) sin autenticación
-        if http_method == 'OPTIONS':
-            logger.info("Allowing OPTIONS request for CORS preflight")
-            return generate_policy_with_cors('cors-preflight', 'Allow', event['methodArn'])
-        
-        # 3. Obtener token del header Authorization (compatible con TOKEN y REQUEST authorizer)
+        # 1. Obtener token del header Authorization (compatible con TOKEN y REQUEST authorizer)
         if event.get('type') == 'TOKEN':
             # Formato TOKEN authorizer
             token = event.get('authorizationToken', '')
@@ -45,7 +36,7 @@ def lambda_handler(event, context):
         
         jwt_token = token[7:]  # Remover 'Bearer '
         
-        # 3. Obtener IP del usuario desde headers personalizados
+        # 2. Obtener IP del usuario desde headers personalizados
         # Priorizar X-Test-IP para pruebas, luego otros headers
         user_ip_raw = headers.get('X-Test-IP') or \
                       headers.get('X-Forwarded-For') or \
@@ -57,16 +48,16 @@ def lambda_handler(event, context):
         user_ip = user_ip_raw.split(',')[0].strip() if user_ip_raw else None
         logger.info(f"User IP: {user_ip}")
         
-        # 4. Para la prueba E2E, simular verificación exitosa
+        # 3. Para la prueba E2E, simular verificación exitosa
         # En producción real, aquí verificarías el token JWT
         logger.info(f"Token received: {jwt_token[:20]}...")
         
-        # 5. Validar formato del token JWT
+        # 4. Validar formato del token JWT
         if len(jwt_token.split('.')) != 3:
             logger.warning("Access DENIED - Invalid JWT format")
             return generate_policy('test-user', 'Deny', event['methodArn'])
         
-        # 6. Decodificar JWT para obtener atributos reales
+        # 5. Decodificar JWT para obtener atributos reales
         try:
             import base64
             import json
@@ -85,19 +76,19 @@ def lambda_handler(event, context):
             logger.warning(f"Error decoding JWT: {e}")
             return generate_policy('test-user', 'Deny', event['methodArn'])
         
-        # 7. Aplicar validaciones de seguridad con atributos reales
+        # 6. Aplicar validaciones de seguridad con atributos reales
         validation_result = perform_security_validations(payload, user_ip)
         
         if validation_result['allowed']:
             logger.info(f"Access ALLOWED - {validation_result['reason']}")
-            return generate_policy_with_cors(payload['sub'], 'Allow', event['methodArn'])
+            return generate_policy('test-user', 'Allow', event['methodArn'])
         else:
             logger.warning(f"Access DENIED - {validation_result['reason']}")
-            return generate_policy_with_cors(payload['sub'], 'Deny', event['methodArn'])
+            return generate_policy('test-user', 'Deny', event['methodArn'])
             
     except Exception as e:
         logger.error(f"Error in authorizer: {str(e)}")
-        return generate_policy('error-user', 'Deny', event['methodArn'])
+        return generate_policy('user', 'Deny', event['methodArn'])
 
 def perform_security_validations(payload, user_ip=None):
     """
@@ -258,32 +249,17 @@ def validate_cognito_groups_access_with_policies(cognito_groups, current_hour, u
                     'reason': f'Access denied for {group} group: outside allowed hours ({group_policy["hours"]["start"]}:00-{group_policy["hours"]["end"]}:59). Current hour: {current_hour}'
                 }
             
-            # Validar IP whitelist PRIMERO si se proporciona IP
+            # Validar geografía si se proporciona IP
+            if user_ip and group_policy['countries']:
+                geo_validation = validate_geographic_access(user_ip, group_policy['countries'])
+                if not geo_validation['allowed']:
+                    return geo_validation
+            
+            # Validar IP whitelist si se proporciona IP
             if user_ip and group_policy['ip_whitelist']:
                 ip_validation = validate_ip_whitelist(user_ip, group_policy['ip_whitelist'])
                 if not ip_validation['allowed']:
                     return ip_validation
-            
-            # Validar geografía si se proporciona IP (solo para IPs públicas)
-            if user_ip and group_policy['countries']:
-                # Solo validar geografía si la IP no está en whitelist (IPs privadas)
-                skip_geo_validation = False
-                if group_policy['ip_whitelist']:
-                    # Verificar si la IP está en la whitelist usando la misma lógica
-                    import ipaddress
-                    try:
-                        user_ip_obj = ipaddress.ip_address(user_ip)
-                        for allowed_network in group_policy['ip_whitelist']:
-                            if user_ip_obj in ipaddress.ip_network(allowed_network):
-                                skip_geo_validation = True
-                                break
-                    except:
-                        pass
-                
-                if not skip_geo_validation:
-                    geo_validation = validate_geographic_access(user_ip, group_policy['countries'])
-                    if not geo_validation['allowed']:
-                        return geo_validation
             
             logger.info(f"User authorized by group: {group} - {group_policy['description']}")
             return {
@@ -309,30 +285,4 @@ def generate_policy(principal_id, effect, resource):
     }
     
     logger.info(f"Generated policy: {policy}")
-    return policy
-
-def generate_policy_with_cors(principal_id, effect, resource):
-    """
-    Genera una política IAM con headers CORS para el autorizador
-    """
-    policy = {
-        'principalId': principal_id,
-        'policyDocument': {
-            'Version': '2012-10-17',
-            'Statement': [
-                {
-                    'Action': 'execute-api:Invoke',
-                    'Effect': effect,
-                    'Resource': resource
-                }
-            ]
-        },
-        'context': {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Headers': 'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token,X-Requested-With,Accept,Origin',
-            'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS'
-        }
-    }
-    
-    logger.info(f"Generated policy with CORS: {policy}")
     return policy
