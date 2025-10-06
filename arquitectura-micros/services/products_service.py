@@ -9,7 +9,9 @@ from aws_cdk import (
     Duration
 )
 from constructs import Construct
-
+account=os.getenv('CDK_DEFAULT_ACCOUNT'),
+region=os.getenv('CDK_DEFAULT_REGION')
+image = f"{account}.dkr.ecr.{region}.amazonaws.com/products"
 
 class ProductsService(Construct):
     """Servicio de productos para experimento de latencia"""
@@ -63,7 +65,9 @@ class ProductsService(Construct):
         )
         container = task_definition.add_container(
             "ProductsServiceContainer",
-            image=ecs.ContainerImage.from_asset("services/src/products"),
+            image=ecs.ContainerImage.from_registry(
+                image
+            ),
             logging=ecs.LogDrivers.aws_logs(
                 stream_prefix="products-service",
                 log_group=log_group

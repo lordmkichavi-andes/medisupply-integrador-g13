@@ -10,6 +10,9 @@ from aws_cdk import (
 )
 from constructs import Construct
 
+account=os.getenv('CDK_DEFAULT_ACCOUNT'),
+region=os.getenv('CDK_DEFAULT_REGION')
+image = f"{account}.dkr.ecr.{region}.amazonaws.com/offer-manager"
 
 class OfferManagerService(Construct):
 
@@ -58,7 +61,9 @@ class OfferManagerService(Construct):
         )
         container = task_definition.add_container(
             "OfferManagerServiceContainer",
-            image=ecs.ContainerImage.from_asset("services/src/offer_manager"),
+            image=ecs.ContainerImage.from_registry(
+                image
+            ),
             logging=ecs.LogDrivers.aws_logs(
                 stream_prefix="offer-manager-service",
                 log_group=log_group

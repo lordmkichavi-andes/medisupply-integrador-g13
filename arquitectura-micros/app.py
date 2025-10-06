@@ -9,9 +9,9 @@ app = cdk.App()
 MediSupplyStack(app, "MediSupplyStack",
                 # Configuración del ambiente
                 env=cdk.Environment(
-        account=os.getenv('CDK_DEFAULT_ACCOUNT'),
-        region=os.getenv('CDK_DEFAULT_REGION')
-    ),
+                    account=os.getenv('CDK_DEFAULT_ACCOUNT'),
+                    region=os.getenv('CDK_DEFAULT_REGION')
+                ),
                 synthesizer=cdk.DefaultStackSynthesizer(qualifier='exp'),
                 # Configuración específica para experimentos
                 config={
