@@ -20,7 +20,7 @@ MediSupplyStack(app, "MediSupplyStack",
                     'products': {'enabled': True},
                     'reports': {'enabled': False},
                     'routes': {'enabled': False},
-                    'users': {'enabled': True},
+                    'users': {'enabled': False},
                 }
                 )
 

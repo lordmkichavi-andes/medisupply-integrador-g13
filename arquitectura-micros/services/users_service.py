@@ -12,7 +12,7 @@ from constructs import Construct
 
 account=os.getenv('CDK_DEFAULT_ACCOUNT'),
 region=os.getenv('CDK_DEFAULT_REGION')
-image = f"{account}.dkr.ecr.{region}.amazonaws.com/users"
+image = f"{account}.dkr.ecr.{region}.amazonaws.com/users:latest"
 
 class UsersService(Construct):
 

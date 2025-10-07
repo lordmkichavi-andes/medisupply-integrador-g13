@@ -11,7 +11,7 @@ from aws_cdk import (
 from constructs import Construct
 account=os.getenv('CDK_DEFAULT_ACCOUNT'),
 region=os.getenv('CDK_DEFAULT_REGION')
-image = f"{account}.dkr.ecr.{region}.amazonaws.com/reports"
+image = f"{account}.dkr.ecr.{region}.amazonaws.com/reports:latest"
 
 class ReportsService(Construct):
 

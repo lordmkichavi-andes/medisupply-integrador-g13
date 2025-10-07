@@ -11,8 +11,7 @@ from aws_cdk import (
 from constructs import Construct
 account=os.getenv('CDK_DEFAULT_ACCOUNT'),
 region=os.getenv('CDK_DEFAULT_REGION')
-image = f"{account}.dkr.ecr.{region}.amazonaws.com/products"
-
+image = f"{account}.dkr.ecr.{region}.amazonaws.com/products:latest"
 class ProductsService(Construct):
     """Servicio de productos para experimento de latencia"""
 
