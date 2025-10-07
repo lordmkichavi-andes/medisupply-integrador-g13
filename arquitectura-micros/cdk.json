@@ -1,5 +1,5 @@
 {
-  "app": "python3 app.py",
+  "app": "python app.py",
   "qualifier": "exp",
   "watch": {
     "include": [
@@ -97,7 +97,7 @@
     "@aws-cdk/aws-lambda:useCdkManagedLogGroup": true
   },
   "env": {
-    "account": "120569610818",
+    "account": "868422696635",
     "region": "us-east-1"
   }
 }

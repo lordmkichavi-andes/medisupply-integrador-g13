@@ -8,6 +8,7 @@ from aws_cdk import (
     aws_elasticloadbalancingv2 as elbv2,
     Duration
 )
+import os
 from constructs import Construct
 account=os.getenv('CDK_DEFAULT_ACCOUNT'),
 region=os.getenv('CDK_DEFAULT_REGION')

@@ -8,10 +8,11 @@ from aws_cdk import (
     aws_elasticloadbalancingv2 as elbv2,
     Duration
 )
+import os
 from constructs import Construct
-account=os.getenv('CDK_DEFAULT_ACCOUNT'),
-region=os.getenv('CDK_DEFAULT_REGION')
-image = f"{account}.dkr.ecr.{region}.amazonaws.com/products:latest"
+account=os.getenv('CDK_DEFAULT_ACCOUNT', '868422696635')
+region=os.getenv('CDK_DEFAULT_REGION', 'us-east-1')
+image = f"{account}.dkr.ecr.{region}.amazonaws.com/products"
 class ProductsService(Construct):
     """Servicio de productos para experimento de latencia"""
 
@@ -56,21 +57,34 @@ class ProductsService(Construct):
             log_group_name="/ecs/products-service",
             retention=logs.RetentionDays.ONE_WEEK
         )
+
+        task_role.add_to_policy(iam.PolicyStatement(
+            actions=[
+                "ecr:GetAuthorizationToken",
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:BatchGetImage",
+            ],
+            resources=["*"]  # ECR actions often require resource: *
+        ))
+
         task_definition = ecs.FargateTaskDefinition(
             self, "ProductsServiceTaskDefinition",
             cpu=256,
             memory_limit_mib=512,
+            execution_role=task_role,
             task_role=task_role
         )
         db_password_secret = ecs.Secret.from_secrets_manager(
             self.database.secret,
             "password"
         )
-
+        image_uri_clean = str(image).strip()
+        print(image_uri_clean)
         container = task_definition.add_container(
             "ProductsServiceContainer",
             image=ecs.ContainerImage.from_registry(
-                image
+                image_uri_clean
             ),
             logging=ecs.LogDrivers.aws_logs(
                 stream_prefix="products-service",

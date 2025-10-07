@@ -14,8 +14,10 @@ from aws_cdk import (
     aws_cloudfront as cloudfront,
     aws_cloudfront_origins as origins,
     Duration,
-    RemovalPolicy
+    RemovalPolicy,
+    CfnOutput
 )
+import os
 from constructs import Construct
 from services.offer_manager_service import OfferManagerService
 from services.orders_service import OrdersService
@@ -31,6 +33,7 @@ class MediSupplyStack(Stack):
         super().__init__(scope, construct_id, **kwargs)
 
         self.config = config
+        region = os.getenv('CDK_DEFAULT_REGION', 'us-east-1')
 
         # Crear infraestructura base
         self._create_infrastructure()
@@ -427,10 +430,10 @@ class MediSupplyStack(Stack):
         """
         # Configurar CORS para el recurso raíz
         self._add_cors_to_resource(self.api.root)
-        
+
         # Configurar CORS para todos los recursos existentes
-        for resource in [self.api.root.get_resource("products"), 
-                        self.api.root.get_resource("users"), 
+        for resource in [self.api.root.get_resource("products"),
+                        self.api.root.get_resource("users"),
                         self.api.root.get_resource("reports"),
                         self.api.root.get_resource("routes")]:
             if resource:
@@ -492,32 +495,51 @@ class MediSupplyStack(Stack):
         users_resource.add_method("DELETE", apigateway.HttpIntegration(f"http://{self.alb.load_balancer_dns_name}/users", http_method="DELETE"), authorizer=self.cognito_authorizer)
 
     def _create_frontend(self):
-        """Crear frontend con S3 + CloudFront"""
-        
-        # Bucket S3 para hosting estático
-        self.frontend_bucket = s3.Bucket(
-            self, "MediSupplyFrontendBucket",
-            bucket_name=f"medisupply-frontend-{self.account}-{self.region}",
-            website_index_document="index.html",
-            website_error_document="error.html",
-            public_read_access=True,
-            block_public_access=s3.BlockPublicAccess(
-                block_public_acls=False,
-                block_public_policy=False,
-                ignore_public_acls=False,
-                restrict_public_buckets=False
-            ),
-            removal_policy=RemovalPolicy.DESTROY,
-            auto_delete_objects=True
+        """Usar S3 existente para el frontend y configurar CloudFront"""
+        EXISTING_BUCKET_NAME = "medisupply-frontend-123456"
+
+        self.frontend_bucket = s3.Bucket.from_bucket_attributes(
+            self, "MediSupplyExistingFrontendBucket",
+            bucket_arn=f"arn:aws:s3:::{EXISTING_BUCKET_NAME}-{self.region}",
         )
-        
+
+        oai = cloudfront.OriginAccessIdentity(
+            self, "OAI",
+            comment=f"OAI para acceder a {EXISTING_BUCKET_NAME}"
+        )
+
+        bucket_policy = s3.BucketPolicy(
+            self, "FrontendBucketPolicy",
+            bucket=self.frontend_bucket,
+            # Mantener la política al eliminar el stack para evitar errores
+            removal_policy=RemovalPolicy.RETAIN
+        )
+
+        oai_read_statement = iam.PolicyStatement(
+            sid="GrantAccessToCloudFrontOAI",
+            effect=iam.Effect.ALLOW,
+            # Usar el principal de concesión del OAI
+            principals=[oai.grant_principal],
+            actions=["s3:GetObject"],
+            resources=[self.frontend_bucket.arn_for_objects("*")]
+        )
+
+        bucket_policy.document.add_statements(oai_read_statement)
+
+        cors_policy = cloudfront.ResponseHeadersPolicy.CORS_ALLOW_ALL_ORIGINS
         # CloudFront Distribution para el frontend
         self.frontend_distribution = cloudfront.Distribution(
             self, "MediSupplyFrontendDistribution",
             default_behavior=cloudfront.BehaviorOptions(
-                origin=origins.S3StaticWebsiteOrigin(self.frontend_bucket),
+                origin=origins.S3Origin(
+                    bucket=self.frontend_bucket,
+                    origin_access_identity=oai,
+                    origin_path="/"
+                ),
                 viewer_protocol_policy=cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+                response_headers_policy=cors_policy,
                 cache_policy=cloudfront.CachePolicy.CACHING_OPTIMIZED,
+                origin_request_policy=cloudfront.OriginRequestPolicy.CORS_S3_ORIGIN,
                 compress=True
             ),
             default_root_object="index.html",
@@ -529,25 +551,19 @@ class MediSupplyStack(Stack):
                 )
             ]
         )
-        
+
         # CORS ya configurado universalmente en _enable_universal_cors()
-        
+
+        # -------------------------------------------------------------------------
+
         # Outputs
-        from aws_cdk import CfnOutput
-        CfnOutput(
-            self, "FrontendBucketName",
-            value=self.frontend_bucket.bucket_name,
-            description="Nombre del bucket S3 para el frontend"
-        )
-        
-        CfnOutput(
-            self, "FrontendDistributionDomain",
-            value=self.frontend_distribution.distribution_domain_name,
-            description="Dominio de CloudFront para el frontend"
-        )
-        
         CfnOutput(
             self, "FrontendURL",
             value=f"https://{self.frontend_distribution.distribution_domain_name}",
             description="URL del frontend"
+        )
+        CfnOutput(
+            self, "FrontendDistributionId",
+            value=self.frontend_distribution.distribution_id,  # <-- Propiedad a usar
+            description="ID de la Distribución de CloudFront"
         )
