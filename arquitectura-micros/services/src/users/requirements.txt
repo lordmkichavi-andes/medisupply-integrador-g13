@@ -1,4 +1,0 @@
-Flask
-Flask-Caching
-pandas
-gunicorn
