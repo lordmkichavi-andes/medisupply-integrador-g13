@@ -1,6 +1,6 @@
 -- Creación de la tabla 'Category' (Categoría)
 -- Esta tabla almacena los tipos de categorías de productos.
- CREATE TABLE IF NOT EXISTS Category (
+CREATE TABLE IF NOT EXISTS Category (
                           category_id INT PRIMARY KEY,
                           name VARCHAR(50) NOT NULL
 );

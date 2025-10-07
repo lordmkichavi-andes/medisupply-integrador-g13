@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request, make_response
-from adapters.sqlite_adapter import SQLiteProductAdapter
+from adapters.sql_adapter import PostgreSQLProductAdapter
 from services.product_service import ProductService
 from database_setup import setup_database
 from flask_caching import Cache
@@ -52,7 +52,7 @@ def cache_control_header(timeout=None, key = ""):
 
 
 # Dependencia: inyección del repositorio en el servicio
-product_repository = SQLiteProductAdapter()
+product_repository = PostgreSQLProductAdapter()
 product_service = ProductService(repository=product_repository)
 setup_database()
 

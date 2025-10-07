@@ -61,6 +61,12 @@ class ProductsService(Construct):
             memory_limit_mib=512,
             task_role=task_role
         )
+        # 1. Definir el secreto para la contraseña
+        db_password_secret = ecs.Secret.from_secrets_manager(
+            self.database.secret,
+            "password"
+        )
+
         container = task_definition.add_container(
             "ProductsServiceContainer",
             image=ecs.ContainerImage.from_asset("services/products"),
@@ -73,9 +79,15 @@ class ProductsService(Construct):
                 "LOG_LEVEL": "INFO",
                 "DB_HOST": self.database.instance_endpoint.hostname,
                 "DB_PORT": "5432",
-                "CACHE_HOST": self.cache.attr_redis_endpoint_address,  # ✅ Cambio aquí
-                "CACHE_PORT": self.cache.attr_redis_endpoint_port,  # ✅ Cambio aquí
+                "DB_NAME": "productosdb",
+                "DB_USER": "postgres",
+                "CACHE_HOST": self.cache.attr_redis_endpoint_address,
+                "CACHE_PORT": self.cache.attr_redis_endpoint_port,
                 "CACHE_DB": "0"
+            },
+            # ✅ 2. PASAR LA CONTRASEÑA DE FORMA SEGURA CON SECRETS
+            secrets={
+                "DB_PASSWORD": db_password_secret
             },
             port_mappings=[
                 ecs.PortMapping(
@@ -84,6 +96,7 @@ class ProductsService(Construct):
                 )
             ]
         )
+        self.database.secret.grant_read(task_definition.task_role)
         return task_definition
 
     def _create_service(self):
@@ -124,6 +137,7 @@ class ProductsService(Construct):
         Configura las reglas de seguridad para el servicio Fargate y la conexión con Redis.
         """
         alb_security_group = self.alb_listener.load_balancer.connections.security_groups[0]
+        db_security_group = self.database.connections.security_groups[0]
         service_security_group = self.service.connections.security_groups[0]
 
         # ✅ 1. Regla de entrada para permitir el tráfico desde el ALB
@@ -139,6 +153,11 @@ class ProductsService(Construct):
             vpc=self.vpc,
             description="Allow traffic to Redis from Fargate service",
             allow_all_outbound=True
+        )
+
+        self.database.connections.allow_default_port_from(
+            service_security_group,
+            description="Allow ProductsService Fargate to connect to PostgreSQL RDS"
         )
 
         # ✅ 3. Regla de entrada para la caché, permitiendo el tráfico desde el servicio de Fargate

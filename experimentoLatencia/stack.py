@@ -5,7 +5,6 @@ from aws_cdk import (
     aws_rds as rds,
     aws_elasticache as elasticache,
     aws_cognito as cognito,
-    aws_lambda as lambda_,
     aws_apigateway as apigateway,
     aws_elasticloadbalancingv2 as elbv2,
     aws_iam as iam,
@@ -83,6 +82,14 @@ class ExperimentoStack(Stack):
         )
 
         # RDS Database
+        # Security Group para RDS (puerto 5432 abierto)
+        self.rds_security_group = ec2.SecurityGroup(
+            self, "RDSSecurityGroup",
+            vpc=self.vpc,
+            description="Security group for public RDS access",
+            allow_all_outbound=True
+        )
+
         self.database = rds.DatabaseInstance(
             self, "ExperimentoDB",
             engine=rds.DatabaseInstanceEngine.postgres(
@@ -96,10 +103,13 @@ class ExperimentoStack(Stack):
             vpc_subnets=ec2.SubnetSelection(
                 subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS
             ),
+            security_groups=[self.rds_security_group],
             allocated_storage=20,
+            publicly_accessible=True,
             deletion_protection=False,
             removal_policy=RemovalPolicy.DESTROY,
-            delete_automated_backups=True
+            delete_automated_backups=True,
+            credentials=rds.Credentials.from_generated_secret("postgres")
         )
 
         # ElastiCache Redis Security Group
@@ -147,6 +157,12 @@ class ExperimentoStack(Stack):
                 database=self.database,
                 cache=self.cache,
                 alb_listener=self.alb_listener
+            )
+            products_fargate_sg = self.products_service.service.connections.security_groups[0]
+
+            self.database.connections.allow_default_port_from(
+                products_fargate_sg,
+                description="Allow ProductsService Fargate to connect to PostgreSQL"
             )
 
     def _configure_experiments(self):

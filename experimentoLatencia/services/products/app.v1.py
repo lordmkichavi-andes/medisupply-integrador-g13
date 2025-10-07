@@ -1,6 +1,6 @@
 # app.py
 from flask import Flask, jsonify, make_response, request
-from adapters.sqlite_adapter import SQLiteProductAdapter
+from adapters.sql_adapter import SQLiteProductAdapter
 from services.product_service import ProductService
 from database_setup import setup_database
 from flask_caching import Cache

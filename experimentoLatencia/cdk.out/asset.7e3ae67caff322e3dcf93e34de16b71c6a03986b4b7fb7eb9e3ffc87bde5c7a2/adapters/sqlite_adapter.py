@@ -1,4 +1,4 @@
-# adapters/sqlite_adapter.py
+# adapters/sql_adapter.py
 import sqlite3
 from typing import List
 from repositories.product_repository import ProductRepository
