@@ -37,7 +37,7 @@ class ProductsService(Construct):
         # Crear servicio
         self.service = self._create_service()
 
-        # ✅ Configurar todas las conexiones del servicio
+        # Configurar todas las conexiones del servicio
         self._configure_service_connections()
 
         # Configurar ALB
@@ -63,6 +63,11 @@ class ProductsService(Construct):
             memory_limit_mib=512,
             task_role=task_role
         )
+        db_password_secret = ecs.Secret.from_secrets_manager(
+            self.database.secret,
+            "password"
+        )
+
         container = task_definition.add_container(
             "ProductsServiceContainer",
             image=ecs.ContainerImage.from_registry(
@@ -77,9 +82,14 @@ class ProductsService(Construct):
                 "LOG_LEVEL": "INFO",
                 "DB_HOST": self.database.instance_endpoint.hostname,
                 "DB_PORT": "5432",
-                "CACHE_HOST": self.cache.attr_redis_endpoint_address,  # ✅ Cambio aquí
-                "CACHE_PORT": self.cache.attr_redis_endpoint_port,  # ✅ Cambio aquí
-                "CACHE_DB": "0"
+                "CACHE_HOST": self.cache.attr_redis_endpoint_address,
+                "CACHE_PORT": self.cache.attr_redis_endpoint_port,
+                "CACHE_DB": "0",
+                "DB_NAME": "productosdb",
+                "DB_USER": "postgres",
+            },
+            secrets={
+                "DB_PASSWORD": db_password_secret
             },
             port_mappings=[
                 ecs.PortMapping(
@@ -88,6 +98,7 @@ class ProductsService(Construct):
                 )
             ]
         )
+        self.database.secret.grant_read(task_definition.task_role)
         return task_definition
 
     def _create_service(self):
@@ -129,11 +140,16 @@ class ProductsService(Construct):
         """
         alb_security_group = self.alb_listener.load_balancer.connections.security_groups[0]
         service_security_group = self.service.connections.security_groups[0]
-        # ✅ 1. Regla de entrada para permitir el tráfico desde el ALB
+
         service_security_group.add_ingress_rule(
             peer=alb_security_group,
             connection=ec2.Port.tcp(8080),
             description="Allow inbound traffic from ALB"
+        )
+
+        self.database.connections.allow_default_port_from(
+            service_security_group,
+            description="Allow ProductsService Fargate to connect to PostgreSQL RDS"
         )
 
         cache_security_group_id = self.cache.vpc_security_group_ids[0]

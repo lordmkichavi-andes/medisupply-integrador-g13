@@ -137,7 +137,6 @@ class ProductsService(Construct):
         Configura las reglas de seguridad para el servicio Fargate y la conexión con Redis.
         """
         alb_security_group = self.alb_listener.load_balancer.connections.security_groups[0]
-        db_security_group = self.database.connections.security_groups[0]
         service_security_group = self.service.connections.security_groups[0]
 
         # ✅ 1. Regla de entrada para permitir el tráfico desde el ALB

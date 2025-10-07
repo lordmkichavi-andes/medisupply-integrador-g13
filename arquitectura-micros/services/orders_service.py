@@ -35,6 +35,9 @@ class OrdersService(Construct):
         # Crear servicio
         self.service = self._create_service()
 
+        # Configurar todas las conexiones del servicio
+        self._configure_service_connections()
+
         # Configurar ALB
         self._configure_alb()
 
@@ -58,6 +61,12 @@ class OrdersService(Construct):
             memory_limit_mib=512,
             task_role=task_role
         )
+
+        db_password_secret = ecs.Secret.from_secrets_manager(
+            self.database.secret,
+            "password"
+        )
+
         container = task_definition.add_container(
             "OrdersServiceContainer",
             image=ecs.ContainerImage.from_registry(
@@ -72,6 +81,11 @@ class OrdersService(Construct):
                 "LOG_LEVEL": "INFO",
                 "DB_HOST": self.database.instance_endpoint.hostname,
                 "DB_PORT": "5432",
+                "DB_NAME": "ordersdb",
+                "DB_USER": "postgres",
+            },
+            secrets={
+                "DB_PASSWORD": db_password_secret
             },
             port_mappings=[
                 ecs.PortMapping(
@@ -80,6 +94,7 @@ class OrdersService(Construct):
                 )
             ]
         )
+        self.database.secret.grant_read(task_definition.task_role)
         return task_definition
 
     def _create_service(self):
@@ -114,6 +129,13 @@ class OrdersService(Construct):
             )
         )
         return target_group
+
+    def _configure_service_connections(self):
+        service_security_group = self.service.connections.security_groups[0]
+        self.database.connections.allow_default_port_from(
+            service_security_group,
+            description="Allow OrderssService Fargate to connect to PostgreSQL RDS"
+        )
 
     def _configure_alb(self):
         """Configurar ALB para el servicio"""

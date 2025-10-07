@@ -95,7 +95,15 @@ class MediSupplyStack(Stack):
             )
         )
 
-        # RDS Database
+        # RDS Databases
+        # Security Group para RDS (puerto 5432 abierto)
+        self.rds_core_security_group = ec2.SecurityGroup(
+            self, "RDSCoreSecurityGroup",
+            vpc=self.vpc,
+            description="Security group for public RDS access",
+            allow_all_outbound=True
+        )
+
         self.core_database = rds.DatabaseInstance(
             self, "MediSupplyCoreDB",
             engine=rds.DatabaseInstanceEngine.postgres(
@@ -109,10 +117,19 @@ class MediSupplyStack(Stack):
             vpc_subnets=ec2.SubnetSelection(
                 subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS
             ),
+            security_groups=[self.rds_core_security_group],
             allocated_storage=20,
             deletion_protection=False,
             removal_policy=RemovalPolicy.DESTROY,
-            delete_automated_backups=True
+            delete_automated_backups=True,
+            credentials=rds.Credentials.from_generated_secret("postgres")
+        )
+
+        self.rds_transacitional_security_group = ec2.SecurityGroup(
+            self, "RDSTransactionalSecurityGroup",
+            vpc=self.vpc,
+            description="Security group for public RDS access",
+            allow_all_outbound=True
         )
 
         self.transactional_database = rds.DatabaseInstance(
@@ -128,10 +145,12 @@ class MediSupplyStack(Stack):
             vpc_subnets=ec2.SubnetSelection(
                 subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS
             ),
+            security_groups=[self.rds_transacitional_security_group],
             allocated_storage=20,
             deletion_protection=False,
             removal_policy=RemovalPolicy.DESTROY,
-            delete_automated_backups=True
+            delete_automated_backups=True,
+            credentials=rds.Credentials.from_generated_secret("postgres")
         )
 
         # ElastiCache Redis Security Group
@@ -141,8 +160,6 @@ class MediSupplyStack(Stack):
             description="Security group for Redis cache",
             allow_all_outbound=True
         )
-
-
 
         # ElastiCache Subnet Group
         cache_subnet_group = elasticache.CfnSubnetGroup(
@@ -240,20 +257,32 @@ class MediSupplyStack(Stack):
     def _create_services(self):
         """Crear servicios necesarios para MediSupplys"""
         if self.config.get('offer-manager', {}).get('enabled', False):
-            self.products_service = OfferManagerService(
+            self.offers_service = OfferManagerService(
                 self, "OfferManagerService",
                 cluster=self.ecs_cluster,
                 vpc=self.vpc,
                 database=self.transactional_database,
                 alb_listener=self.alb_listener
             )
+            offers_fargate_sg = self.offers_service.service.connections.security_groups[0]
+
+            self.transactional_database.connections.allow_default_port_from(
+                offers_fargate_sg,
+                description="Allow OfferManagerService Fargate to connect to PostgreSQL"
+            )
         if self.config.get('orders', {}).get('enabled', False):
-            self.products_service = OrdersService(
+            self.orders_service = OrdersService(
                 self, "OrdersService",
                 cluster=self.ecs_cluster,
                 vpc=self.vpc,
                 database=self.transactional_database,
                 alb_listener=self.alb_listener
+            )
+            orders_fargate_sg = self.orders_service.service.connections.security_groups[0]
+
+            self.transactional_database.connections.allow_default_port_from(
+                orders_fargate_sg,
+                description="Allow OrdersService Fargate to connect to PostgreSQL"
             )
         if self.config.get('products', {}).get('enabled', False):
             self.products_service = ProductsService(
@@ -264,29 +293,53 @@ class MediSupplyStack(Stack):
                 cache=self.cache,
                 alb_listener=self.alb_listener
             )
+            products_fargate_sg = self.products_service.service.connections.security_groups[0]
+
+            self.core_database.connections.allow_default_port_from(
+                products_fargate_sg,
+                description="Allow ProductsService Fargate to connect to PostgreSQL"
+            )
         if self.config.get('reports', {}).get('enabled', False):
-            self.products_service = ReportsService(
+            self.reports_service = ReportsService(
                 self, "ReportsService",
                 cluster=self.ecs_cluster,
                 vpc=self.vpc,
                 database=self.transactional_database_database,
                 alb_listener=self.alb_listener
             )
+            reports_fargate_sg = self.reports_service.service.connections.security_groups[0]
+
+            self.transactional_database.connections.allow_default_port_from(
+                reports_fargate_sg,
+                description="Allow ReportsService Fargate to connect to PostgreSQL"
+            )
         if self.config.get('routes', {}).get('enabled', False):
-            self.products_service = RoutesService(
+            self.routes_service = RoutesService(
                 self, "RoutesService",
                 cluster=self.ecs_cluster,
                 vpc=self.vpc,
                 database=self.transactional_database,
                 alb_listener=self.alb_listener
             )
+            routes_fargate_sg = self.routes_service.service.connections.security_groups[0]
+
+            self.transactional_database.connections.allow_default_port_from(
+                routes_fargate_sg,
+                description="Allow RoutesService Fargate to connect to PostgreSQL"
+            )
         if self.config.get('users', {}).get('enabled', False):
-            self.products_service = UsersService(
+            self.users_service = UsersService(
                 self, "UsersService",
                 cluster=self.ecs_cluster,
                 vpc=self.vpc,
                 database=self.core_database,
                 alb_listener=self.alb_listener
+            )
+            users_fargate_sg = self.users_service.service.connections.security_groups[0]
+
+            self.core_database.connections.allow_default_port_from(
+                users_fargate_sg,
+                description="Allow UsersService Fargate to connect to PostgreSQL"
             )
 
     def _configure_api(self):
