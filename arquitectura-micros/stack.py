@@ -542,7 +542,7 @@ class MediSupplyStack(Stack):
                 origin_request_policy=cloudfront.OriginRequestPolicy.CORS_S3_ORIGIN,
                 compress=True
             ),
-            default_root_object="index.html",
+            default_root_object="src/index.html",
             error_responses=[
                 cloudfront.ErrorResponse(
                     http_status=404,
