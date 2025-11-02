@@ -6,6 +6,7 @@ from aws_cdk import (
     aws_iam as iam,
     aws_logs as logs,
     aws_elasticloadbalancingv2 as elbv2,
+    aws_secretsmanager as secretsmanager,
     Duration
 )
 import os
@@ -67,6 +68,12 @@ class UsersService(Construct):
             self.database.secret,
             "password"
         )
+        gemini_api_key_secret = ecs.Secret.from_secrets_manager(
+            secretsmanager.Secret.from_secret_name_v2(
+                self, "GeminiApiKeyLookup",
+                secret_name=SECRET_NAME 
+            )
+        )
         container = task_definition.add_container(
             "UsersServiceContainer",
             image=ecs.ContainerImage.from_registry(
@@ -85,7 +92,8 @@ class UsersService(Construct):
                 "DB_USER": "postgres",
             },
             secrets={
-                "DB_PASSWORD": db_password_secret
+                "DB_PASSWORD": db_password_secret,
+                "GEMINI_API_KEY": gemini_api_key_secret
             },
             port_mappings=[
                 ecs.PortMapping(
@@ -95,6 +103,14 @@ class UsersService(Construct):
             ]
         )
         self.database.secret.grant_read(task_definition.task_role)
+        BUCKET_NAME = "medisupply-visual-evidences" 
+        task_definition.task_role.add_to_policy(
+            iam.PolicyStatement(
+                actions=["s3:PutObject", "s3:GetObject", "s3:ListBucket"],
+                resources=[f"arn:aws:s3:::{BUCKET_NAME}", 
+                           f"arn:aws:s3:::{BUCKET_NAME}/*"],
+            )
+        )
         return task_definition
 
     def _create_service(self):
