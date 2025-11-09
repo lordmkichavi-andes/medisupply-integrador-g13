@@ -15,6 +15,7 @@ from constructs import Construct
 account=os.getenv('CDK_DEFAULT_ACCOUNT'),
 region=os.getenv('CDK_DEFAULT_REGION')
 image = f"{account}.dkr.ecr.{region}.amazonaws.com/users:latest"
+SECRET_NAME = "llm/config/api-key-multimodal"
 
 class UsersService(Construct):
 
@@ -68,11 +69,9 @@ class UsersService(Construct):
             self.database.secret,
             "password"
         )
-        gemini_api_key_secret = ecs.Secret.from_secrets_manager(
-            secretsmanager.Secret.from_secret_name_v2(
-                self, "GeminiApiKeyLookup",
-                secret_name=SECRET_NAME 
-            )
+        llm_secret_ref = secretsmanager.Secret.from_secret_name_v2(
+            self, "LLMConfigurationSecretLookup",
+            secret_name=SECRET_NAME 
         )
         container = task_definition.add_container(
             "UsersServiceContainer",
@@ -93,7 +92,18 @@ class UsersService(Construct):
             },
             secrets={
                 "DB_PASSWORD": db_password_secret,
-                "GEMINI_API_KEY": gemini_api_key_secret
+                "LLM_API_KEY": ecs.Secret.from_secrets_manager(
+                    llm_secret_ref,
+                    "api_key"
+                ),
+                "ACTIVE_LLM": ecs.Secret.from_secrets_manager(
+                    llm_secret_ref,
+                    "active_llm"
+                ),
+                "LLM_MODEL": ecs.Secret.from_secrets_manager(
+                    llm_secret_ref,
+                    "llm_model"
+                )
             },
             port_mappings=[
                 ecs.PortMapping(
@@ -103,6 +113,7 @@ class UsersService(Construct):
             ]
         )
         self.database.secret.grant_read(task_definition.task_role)
+        llm_secret_ref.grant_read(task_definition.task_role)
         BUCKET_NAME = "medisupply-visual-evidences" 
         task_definition.task_role.add_to_policy(
             iam.PolicyStatement(
